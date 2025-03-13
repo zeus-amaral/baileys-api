@@ -1,0 +1,13 @@
+diff --git a/lib/Socket/Client/websocket.js b/lib/Socket/Client/websocket.js
+index 977c048b64a6894165e58bca12c80cb13cce5658..692093cd3b6d8a274ccfafd2e6aaa3aad8d02ffe 100644
+--- a/lib/Socket/Client/websocket.js
++++ b/lib/Socket/Client/websocket.js
+@@ -41,7 +41,7 @@ class WebSocketClient extends types_1.AbstractSocketClient {
+             agent: this.config.agent,
+         });
+         this.socket.setMaxListeners(0);
+-        const events = ['close', 'error', 'upgrade', 'message', 'open', 'ping', 'pong', 'unexpected-response'];
++        const events = ['close', 'error', 'message', 'open', 'ping', 'pong'];
+         for (const event of events) {
+             (_b = this.socket) === null || _b === void 0 ? void 0 : _b.on(event, (...args) => this.emit(event, ...args));
+         }
