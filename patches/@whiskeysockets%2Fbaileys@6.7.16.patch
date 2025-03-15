@@ -1,4 +1,10 @@
+diff --git a/node_modules/@whiskeysockets/baileys/.bun-tag-2fe232c6b90d5adf b/.bun-tag-2fe232c6b90d5adf
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/node_modules/@whiskeysockets/baileys/.bun-tag-600e83f6d48981a8 b/.bun-tag-600e83f6d48981a8
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/@whiskeysockets/baileys/.bun-tag-8a7003c32aded7b0 b/.bun-tag-8a7003c32aded7b0
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/lib/Socket/Client/websocket.js b/lib/Socket/Client/websocket.js
@@ -28,3 +34,24 @@ index e9d112cb1f7f68f50333abddd3adb63eb7d8dc77..4c35eb5448d32c6a555ee9aacd0d69aa
          logger.error({ err }, `unexpected error in '${msg}'`);
      };
      /** await the next incoming message */
+diff --git a/lib/Utils/auth-utils.js b/lib/Utils/auth-utils.js
+index fbb29b18e8c0c50bbf42ef10de178480da53e76b..b9f9cd31ce2fc564a3c5769c6cf62c925bd7f282 100644
+--- a/lib/Utils/auth-utils.js
++++ b/lib/Utils/auth-utils.js
+@@ -124,6 +124,16 @@ const addTransactionCapability = (state, logger, { maxCommitRetries, delayBetwee
+                 return state.set(data);
+             }
+         },
++        clear: () => {
++            if (isInTransaction()) {
++                logger.trace('clearing cache in transaction');
++                transactionCache = {};
++                mutations = {};
++            }
++            else {
++                return state.clear();
++            }
++        },
+         isInTransaction,
+         async transaction(work) {
+             let result;
