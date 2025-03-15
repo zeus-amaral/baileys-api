@@ -2,8 +2,9 @@ import logger, { baileysLogger } from "@/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
   type BaileysEventMap,
-  Browsers,
+  type WAPresence,
   type ConnectionState,
+  Browsers,
   DisconnectReason,
   useMultiFileAuthState,
 } from "@whiskeysockets/baileys";
@@ -17,7 +18,7 @@ export interface BaileysConnectionOptions {
   clientName?: string;
   phoneNumber: string;
   webhookUrl: string;
-  webhookSecret: string;
+  webhookVerifyToken: string;
   onConnectionClose?: () => void;
 }
 
@@ -36,7 +37,7 @@ export class BaileysConnection {
   private clientName: string;
   private phoneNumber: string;
   private webhookUrl: string;
-  private webhookSecret: string;
+  private webhookVerifyToken: string;
   private onConnectionClose: (() => void) | null;
   private socket: ReturnType<typeof makeWASocket> | null;
 
@@ -44,7 +45,7 @@ export class BaileysConnection {
     this.clientName = options.clientName || "Chrome";
     this.phoneNumber = options.phoneNumber;
     this.webhookUrl = options.webhookUrl;
-    this.webhookSecret = options.webhookSecret;
+    this.webhookVerifyToken = options.webhookVerifyToken;
     this.onConnectionClose = options.onConnectionClose || null;
     this.socket = null;
   }
@@ -62,31 +63,25 @@ export class BaileysConnection {
       printQRInTerminal: true,
     });
 
-    this.socket.ev.on("creds.update", (creds) => {
-      if (creds.me?.id && this.phoneNumber !== phoneNumberFromId(creds.me.id)) {
-        // TODO: Reconnect so WhatsApp receives login request
-        this.handleWrongPhoneNumber();
-        return;
-      }
-
-      saveCreds();
-    });
+    this.socket.ev.on("creds.update", saveCreds);
     this.socket.ev.on("connection.update", (event) =>
       this.handleConnectionUpdate(event),
     );
-    // sock.ev.on("messages.upsert", (event) => this.handleMessagesUpsert(event));
-    // sock.ev.on("messages.update", (event) => this.handleMessagesUpdate(event));
-    // sock.ev.on("message-receipt.update", (event) =>
-    //   this.handleMessageReceiptUpdate(event),
-    // );
+    this.socket.ev.on("messages.upsert", (event) =>
+      this.handleMessagesUpsert(event),
+    );
+    this.socket.ev.on("messages.update", (event) =>
+      this.handleMessagesUpdate(event),
+    );
+    this.socket.ev.on("message-receipt.update", (event) =>
+      this.handleMessageReceiptUpdate(event),
+    );
   }
 
-  status() {
-    if (!this.socket) {
-      throw new BaileysNotConnectedError();
-    }
-
-    return { connected: this.socket?.ws.isOpen };
+  private async close() {
+    this.socket = null;
+    await rm("auth", { recursive: true, force: true });
+    this.onConnectionClose?.();
   }
 
   async logout() {
@@ -95,12 +90,19 @@ export class BaileysConnection {
     }
 
     await this.socket.logout();
-    this.socket = null;
-    this.onConnectionClose?.();
+    await this.close();
   }
 
-  private async handleConnectionUpdate(event: Partial<ConnectionState>) {
-    const { connection, isNewLogin, qr, lastDisconnect } = event;
+  sendPresenceUpdate(type: WAPresence, toJid?: string | undefined) {
+    if (!this.socket) {
+      throw new BaileysNotConnectedError();
+    }
+
+    return this.socket.sendPresenceUpdate(type, toJid);
+  }
+
+  private async handleConnectionUpdate(data: Partial<ConnectionState>) {
+    const { connection, qr, lastDisconnect } = data;
 
     if (connection === "close") {
       const error = lastDisconnect?.error as Boom;
@@ -112,58 +114,55 @@ export class BaileysConnection {
         this.connect();
         return;
       }
-      await rm("auth", { recursive: true, force: true });
-      this.onConnectionClose?.();
+      await this.close();
+    }
+
+    if (
+      connection === "open" &&
+      this.socket?.user?.id &&
+      this.phoneNumber !== phoneNumberFromId(this.socket?.user?.id)
+    ) {
+      this.handleWrongPhoneNumber();
+      return;
     }
 
     if (qr) {
-      this.sendToWebhook({
-        event: "connection.update",
-        payload: { status: "SETUP_NEEDED", qrcode: await toDataURL(qr) },
-      });
-    } else if (isNewLogin || connection === "open" || connection === "close") {
-      let status = "SETUP_NEEDED";
-      if (isNewLogin) {
-        status = "CONNECTING";
-      } else if (connection === "open") {
-        status = "AVAILABLE";
-      }
-      this.sendToWebhook({
-        event: "connection.update",
-        payload: { status },
-      });
+      Object.assign(data, { qrDataUrl: await toDataURL(qr) });
     }
-  }
-
-  private handleMessagesUpsert(event: BaileysEventMap["messages.upsert"]) {
-    const { messages } = event;
 
     this.sendToWebhook({
-      event: "messages.upsert",
-      payload: { messages },
+      event: "connection.update",
+      data,
     });
   }
 
-  private handleMessagesUpdate(event: BaileysEventMap["messages.update"]) {
+  private handleMessagesUpsert(data: BaileysEventMap["messages.upsert"]) {
+    this.sendToWebhook({
+      event: "messages.upsert",
+      data,
+    });
+  }
+
+  private handleMessagesUpdate(data: BaileysEventMap["messages.update"]) {
     this.sendToWebhook({
       event: "messages.update",
-      payload: { updates: event },
+      data,
     });
   }
 
   private handleMessageReceiptUpdate(
-    event: BaileysEventMap["message-receipt.update"],
+    data: BaileysEventMap["message-receipt.update"],
   ) {
     this.sendToWebhook({
       event: "message-receipt.update",
-      payload: { updates: event },
+      data,
     });
   }
 
   private handleWrongPhoneNumber() {
     this.sendToWebhook({
       event: "connection.update",
-      payload: { status: "WRONG_PHONE_NUMBER" },
+      data: { error: "WRONG_PHONE_NUMBER" },
     });
     this.socket?.ev.removeAllListeners("connection.update");
     this.logout();
@@ -176,7 +175,10 @@ export class BaileysConnection {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...data, webhookSecret: this.webhookSecret }),
+        body: JSON.stringify({
+          ...data,
+          webhookVerifyToken: this.webhookVerifyToken,
+        }),
       });
     } catch (error) {
       logger.error("Failed to send to webhook", error);

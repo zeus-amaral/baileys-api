@@ -4,6 +4,7 @@ import {
   type BaileysConnectionOptions,
   BaileysNotConnectedError,
 } from "@/baileys/connection";
+import type { WAPresence } from "@whiskeysockets/baileys";
 
 export class BaileysConnectionsHandler {
   private connections: Record<string, BaileysConnection> = {};
@@ -25,13 +26,16 @@ export class BaileysConnectionsHandler {
     this.connections[phoneNumber] = connection;
   }
 
-  status(phoneNumber: string) {
+  sendPresenceUpdate(
+    phoneNumber: string,
+    { type, toJid }: { type: WAPresence; toJid?: string | undefined },
+  ) {
     const connection = this.connections[phoneNumber];
     if (!connection) {
       throw new BaileysNotConnectedError();
     }
 
-    return connection.status();
+    return connection.sendPresenceUpdate(type, toJid);
   }
 
   async logout(phoneNumber: string) {

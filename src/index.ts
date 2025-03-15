@@ -17,19 +17,19 @@ const app = new Elysia()
   })
   .post(
     "/connections",
-    async ({ body, error }) => {
-      const { clientName, phoneNumber, webhookUrl, webhookSecret } = body;
+    async ({ body }) => {
+      const { clientName, phoneNumber, webhookUrl, webhookVerifyToken } = body;
 
       try {
         await baileys.connect({
           clientName,
           phoneNumber,
           webhookUrl,
-          webhookSecret,
+          webhookVerifyToken,
         });
       } catch (e) {
         if (e instanceof BaileysAlreadyConnectedError) {
-          return error(409, { message: e.message });
+          await baileys.sendPresenceUpdate(phoneNumber, { type: "available" });
         }
       }
     },
@@ -38,30 +38,7 @@ const app = new Elysia()
         clientName: t.Optional(t.String()),
         phoneNumber: t.String(),
         webhookUrl: t.String(),
-        webhookSecret: t.String(),
-      }),
-    },
-  )
-  .get(
-    "/connections/:phoneNumber",
-    ({ params, error }) => {
-      const { phoneNumber } = params;
-
-      try {
-        logger.info(`Checking status of ${phoneNumber}`);
-        const status = baileys.status(phoneNumber);
-        logger.info(`Status of ${phoneNumber}: ${status}`);
-        return status;
-      } catch (e) {
-        if (e instanceof BaileysNotConnectedError) {
-          return error(404, { message: e.message });
-        }
-        throw e;
-      }
-    },
-    {
-      params: t.Object({
-        phoneNumber: t.String(),
+        webhookVerifyToken: t.String(),
       }),
     },
   )
