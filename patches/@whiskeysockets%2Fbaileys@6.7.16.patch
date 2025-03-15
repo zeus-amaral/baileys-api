@@ -1,3 +1,6 @@
+diff --git a/node_modules/@whiskeysockets/baileys/.bun-tag-600e83f6d48981a8 b/.bun-tag-600e83f6d48981a8
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/lib/Socket/Client/websocket.js b/lib/Socket/Client/websocket.js
 index 977c048b64a6894165e58bca12c80cb13cce5658..692093cd3b6d8a274ccfafd2e6aaa3aad8d02ffe 100644
 --- a/lib/Socket/Client/websocket.js
@@ -11,3 +14,17 @@ index 977c048b64a6894165e58bca12c80cb13cce5658..692093cd3b6d8a274ccfafd2e6aaa3aa
          for (const event of events) {
              (_b = this.socket) === null || _b === void 0 ? void 0 : _b.on(event, (...args) => this.emit(event, ...args));
          }
+diff --git a/lib/Socket/socket.js b/lib/Socket/socket.js
+index e9d112cb1f7f68f50333abddd3adb63eb7d8dc77..4c35eb5448d32c6a555ee9aacd0d69aac9a299e8 100644
+--- a/lib/Socket/socket.js
++++ b/lib/Socket/socket.js
+@@ -77,6 +77,9 @@ const makeSocket = (config) => {
+     };
+     /** log & process any unexpected errors */
+     const onUnexpectedError = (err, msg) => {
++        if (!ws.isOpen) {
++            return;
++        }
+         logger.error({ err }, `unexpected error in '${msg}'`);
+     };
+     /** await the next incoming message */
