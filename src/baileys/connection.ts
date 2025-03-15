@@ -1,4 +1,4 @@
-import logger, { baileysLogger } from "@/logger";
+import logger, { baileysLogger } from "@/lib/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
   type BaileysEventMap,
@@ -181,7 +181,7 @@ export class BaileysConnection {
         }),
       });
     } catch (error) {
-      logger.error("Failed to send to webhook", error);
+      logger.error("Failed to send to webhook %o", error);
     }
   }
 }

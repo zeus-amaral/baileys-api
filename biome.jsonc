@@ -5,11 +5,11 @@
     "indentStyle": "space",
     "indentWidth": 2,
     "lineEnding": "lf",
-    "include": ["src/**/*.ts"]
+    "include": ["src/**/*.ts", "scripts/**/*.ts"]
   },
   "organizeImports": {
     "enabled": true,
-    "include": ["src/**/*.ts"]
+    "include": ["src/**/*.ts", "scripts/**/*.ts"]
   },
   "linter": {
     "enabled": true,

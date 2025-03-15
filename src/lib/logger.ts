@@ -9,6 +9,13 @@ export const baileysLogger = pino({
   transport: {
     targets: [
       {
+        target: "pino-pretty",
+        options: {
+          colorize: true,
+          translateTime: "SYS:standard",
+        } as PrettyOptions,
+      },
+      {
         target: "pino-roll",
         options: {
           file: path.join("logs", "baileys"),
