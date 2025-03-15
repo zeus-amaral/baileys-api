@@ -8,17 +8,18 @@ redis.on("error", (err) => {
   logger.error("Redis client error\n%o", err);
 });
 
-redis.on("connect", () => {
+redis.on("connect", async () => {
+  await redis.clientSetName("baileys-api");
   logger.info("Connected to Redis");
 });
 
-const connectRedis = async () => {
+async function connect() {
   if (!redis.isOpen) {
     await redis.connect();
   }
-};
+}
 
-connectRedis().catch((err) => {
+connect().catch((err) => {
   logger.error("Failed to connect to Redis\n%o", err);
 });
 

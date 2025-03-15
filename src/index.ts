@@ -55,3 +55,7 @@ const app = new Elysia()
 logger.info(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 );
+
+baileys.reconnectFromAuthStore().catch((e) => {
+  logger.error("Failed to reconnect from auth store: %s", e.stack);
+});

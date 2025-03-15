@@ -1,3 +1,4 @@
+import { useRedisAuthState } from "@/baileys/redisAuthState";
 import logger, { baileysLogger } from "@/lib/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
@@ -6,13 +7,9 @@ import makeWASocket, {
   type ConnectionState,
   Browsers,
   DisconnectReason,
-  useMultiFileAuthState,
+  makeCacheableSignalKeyStore,
 } from "@whiskeysockets/baileys";
 import { toDataURL } from "qrcode";
-
-// biome-ignore lint/correctness/noNodejsModules: <explanation>
-import { rm } from "node:fs/promises";
-import { phoneNumberFromId } from "@/baileys/utils";
 
 export interface BaileysConnectionOptions {
   clientName?: string;
@@ -55,9 +52,16 @@ export class BaileysConnection {
       throw new BaileysAlreadyConnectedError();
     }
 
-    const { state, saveCreds } = await useMultiFileAuthState("auth");
+    const { state, saveCreds } = await useRedisAuthState(this.phoneNumber, {
+      clientName: this.clientName,
+      webhookUrl: this.webhookUrl,
+      webhookVerifyToken: this.webhookVerifyToken,
+    });
     this.socket = makeWASocket({
-      auth: state,
+      auth: {
+        creds: state.creds,
+        keys: makeCacheableSignalKeyStore(state.keys, logger),
+      },
       logger: baileysLogger,
       browser: Browsers.windows(this.clientName),
       printQRInTerminal: true,
@@ -78,9 +82,9 @@ export class BaileysConnection {
     );
   }
 
-  private async close() {
+  private close() {
+    this.socket?.authState.keys.clear?.();
     this.socket = null;
-    await rm("auth", { recursive: true, force: true });
     this.onConnectionClose?.();
   }
 
@@ -90,7 +94,7 @@ export class BaileysConnection {
     }
 
     await this.socket.logout();
-    await this.close();
+    this.close();
   }
 
   sendPresenceUpdate(type: WAPresence, toJid?: string | undefined) {
@@ -109,21 +113,20 @@ export class BaileysConnection {
       const statusCode = error?.output?.statusCode;
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
-      this.socket = null;
       if (shouldReconnect) {
+        this.socket = null;
         this.connect();
         return;
       }
-      await this.close();
+      this.close();
     }
 
-    if (
-      connection === "open" &&
-      this.socket?.user?.id &&
-      this.phoneNumber !== phoneNumberFromId(this.socket?.user?.id)
-    ) {
-      this.handleWrongPhoneNumber();
-      return;
+    if (connection === "open" && this.socket?.user?.id) {
+      const phoneNumberFromId = `+${this.socket.user.id.split("@")[0].split(":")[0]}`;
+      if (phoneNumberFromId !== this.phoneNumber) {
+        this.handleWrongPhoneNumber();
+        return;
+      }
     }
 
     if (qr) {
