@@ -17,6 +17,11 @@ export class BaileysConnectionsHandler {
         Omit<BaileysConnectionOptions, "phoneNumber" | "onConnectionClose">
       >();
 
+    if (savedConnections.length === 0) {
+      logger.info("No saved connections to reconnect");
+      return;
+    }
+
     logger.info(
       "Reconnecting from auth store\n%o",
       savedConnections.map(({ id }) => id),
