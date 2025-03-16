@@ -23,4 +23,10 @@ To start the development server run:
 bun dev
 ```
 
+You can also run the test webhook server:
+
+```bash
+python webhook.py
+```
+
 Open http://localhost:3025/swagger to see the API documentation.
