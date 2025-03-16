@@ -23,8 +23,8 @@ const app = new Elysia()
     swagger({
       documentation: {
         info: {
-          title: "Baileys API",
-          version: "1.0.0",
+          title: config.packageInfo.name,
+          version: config.packageInfo.version,
         },
         tags: [
           {

@@ -1,3 +1,4 @@
+import packageInfo from "@/../package.json";
 import type { LevelWithSilentOrString } from "pino";
 
 const { NODE_ENV, PORT, LOG_LEVEL } = process.env;
@@ -31,6 +32,7 @@ if (!REDIS_PASSWORD) {
 }
 
 const config = {
+  packageInfo,
   port: Number(PORT),
   env: (NODE_ENV || "development") as "development" | "production",
   logLevel: (LOG_LEVEL || "info") as LevelWithSilentOrString,

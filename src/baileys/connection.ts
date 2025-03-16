@@ -111,6 +111,7 @@ export class BaileysConnection {
     const { connection, qr, lastDisconnect } = data;
 
     if (connection === "close") {
+      // TODO: Drop @hapi/boom dependency.
       const error = lastDisconnect?.error as Boom;
       const statusCode = error?.output?.statusCode;
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
