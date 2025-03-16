@@ -38,19 +38,28 @@ const connectionsController = new Elysia({
       body: t.Object({
         clientName: t.Optional(
           t.String({
-            minLength: 1,
             description: "Name of the client to be used on WhatsApp connection",
+            examples: ["My WhatsApp Client"],
           }),
         ),
         webhookUrl: t.String({
           format: "uri",
           description: "URL for receiving updates",
+          examples: ["http://localhost:3026/whatsapp/+1234567890"],
         }),
         webhookVerifyToken: t.String({
-          minLength: 1,
+          minLength: 6,
           description: "Token for verifying webhook",
+          examples: ["a3f4b2"],
         }),
       }),
+      detail: {
+        responses: {
+          200: {
+            description: "Connection initiated",
+          },
+        },
+      },
     },
   )
   .delete(
@@ -61,6 +70,13 @@ const connectionsController = new Elysia({
     },
     {
       params: phoneNumberParams,
+      detail: {
+        responses: {
+          200: {
+            description: "Disconnect initiated",
+          },
+        },
+      },
     },
   );
 
