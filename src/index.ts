@@ -19,9 +19,10 @@ const app = new Elysia()
   // TODO: Use auth data to limit access to existing connections.
   .use(authMiddleware)
   .post(
-    "/connections",
-    async ({ body }) => {
-      const { clientName, phoneNumber, webhookUrl, webhookVerifyToken } = body;
+    "/connections/:phoneNumber",
+    async ({ params, body }) => {
+      const { phoneNumber } = params;
+      const { clientName, webhookUrl, webhookVerifyToken } = body;
 
       try {
         await baileys.connect({
@@ -42,6 +43,18 @@ const app = new Elysia()
         phoneNumber: t.String(),
         webhookUrl: t.String(),
         webhookVerifyToken: t.String(),
+      }),
+    },
+  )
+  .delete(
+    "/connections/:phoneNumber",
+    async ({ params }) => {
+      const { phoneNumber } = params;
+      await baileys.logout(phoneNumber);
+    },
+    {
+      params: t.Object({
+        phoneNumber: t.String(),
       }),
     },
   )
