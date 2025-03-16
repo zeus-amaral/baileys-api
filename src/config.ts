@@ -1,6 +1,6 @@
 import type { LevelWithSilentOrString } from "pino";
 
-const { NODE_ENV, LOG_LEVEL, BAILEYS_LOG_LEVEL } = process.env;
+const { NODE_ENV, LOG_LEVEL } = process.env;
 
 if (!NODE_ENV) {
   throw new Error("NODE_ENV is required");
@@ -8,8 +8,14 @@ if (!NODE_ENV) {
 if (!LOG_LEVEL) {
   throw new Error("LOG_LEVEL is required");
 }
+
+const { BAILEYS_LOG_LEVEL, BAILEYS_PRINT_QR } = process.env;
+
 if (!BAILEYS_LOG_LEVEL) {
   throw new Error("BAILEYS_LOG_LEVEL is required");
+}
+if (!BAILEYS_PRINT_QR) {
+  throw new Error("BAILEYS_PRINT_QR is required");
 }
 
 const { REDIS_URL, REDIS_PASSWORD } = process.env;
@@ -26,6 +32,7 @@ const config = {
   logLevel: (LOG_LEVEL || "info") as LevelWithSilentOrString,
   baileys: {
     logLevel: (BAILEYS_LOG_LEVEL || "warn") as LevelWithSilentOrString,
+    printQr: BAILEYS_PRINT_QR === "true",
   },
   redis: {
     url: REDIS_URL,

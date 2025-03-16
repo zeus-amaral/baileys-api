@@ -1,4 +1,5 @@
 import { useRedisAuthState } from "@/baileys/redisAuthState";
+import config from "@/config";
 import logger, { baileysLogger } from "@/lib/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
@@ -64,7 +65,8 @@ export class BaileysConnection {
       },
       logger: baileysLogger,
       browser: Browsers.windows(this.clientName),
-      printQRInTerminal: true,
+      // TODO: Remove this and drop qrcode-terminal dependency.
+      printQRInTerminal: config.baileys.printQr,
     });
 
     this.socket.ev.on("creds.update", saveCreds);
