@@ -4,9 +4,10 @@
   "module": "src/index.ts",
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "create-api-key": "LOG_LEVEL=warn bun run scripts/create-api-key.ts"
+    "manage-api-keys": "LOG_LEVEL=warn bun run scripts/manage-api-keys.ts"
   },
   "dependencies": {
+    "@elysiajs/swagger": "^1.2.2",
     "@hapi/boom": "^10.0.1",
     "@whiskeysockets/baileys": "^6.7.16",
     "elysia": "^1.2.25",

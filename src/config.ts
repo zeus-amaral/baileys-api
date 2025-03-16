@@ -1,9 +1,12 @@
 import type { LevelWithSilentOrString } from "pino";
 
-const { NODE_ENV, LOG_LEVEL } = process.env;
+const { NODE_ENV, PORT, LOG_LEVEL } = process.env;
 
 if (!NODE_ENV) {
   throw new Error("NODE_ENV is required");
+}
+if (!PORT) {
+  throw new Error("PORT is required");
 }
 if (!LOG_LEVEL) {
   throw new Error("LOG_LEVEL is required");
@@ -28,6 +31,7 @@ if (!REDIS_PASSWORD) {
 }
 
 const config = {
+  port: Number(PORT),
   env: (NODE_ENV || "development") as "development" | "production",
   logLevel: (LOG_LEVEL || "info") as LevelWithSilentOrString,
   baileys: {

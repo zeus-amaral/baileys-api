@@ -1,69 +1,57 @@
 import baileys from "@/baileys";
-import { BaileysAlreadyConnectedError } from "@/baileys/connection";
 import config from "@/config";
+import adminController from "@/controller/admin";
+import connectionsController from "@/controller/connections";
 import logger from "@/lib/logger";
-import { adminGuard, authMiddleware } from "@/middleware/auth";
-import { Elysia, NotFoundError, t } from "elysia";
+import swagger from "@elysiajs/swagger";
+import { Elysia } from "elysia";
 
 const app = new Elysia()
-  .onError(({ path, error }) => {
-    if (error instanceof NotFoundError) {
-      return;
-    }
-    const e = error as Error;
-    logger.error("%s\n%s", path, e.stack);
-    const message =
-      config.env === "development" ? e.stack : "Something went wrong";
-    return new Response(message, { status: 500 });
-  })
-  // TODO: Use auth data to limit access to existing connections.
-  .use(authMiddleware)
-  .post(
-    "/connections/:phoneNumber",
-    async ({ params, body }) => {
-      const { phoneNumber } = params;
-      const { clientName, webhookUrl, webhookVerifyToken } = body;
-
-      try {
-        await baileys.connect({
-          clientName,
-          phoneNumber,
-          webhookUrl,
-          webhookVerifyToken,
-        });
-      } catch (e) {
-        if (e instanceof BaileysAlreadyConnectedError) {
-          await baileys.sendPresenceUpdate(phoneNumber, { type: "available" });
-        }
+  .onError(({ path, error, code }) => {
+    logger.error("%s\n%s", path, (error as Error).stack);
+    switch (code) {
+      case "INTERNAL_SERVER_ERROR": {
+        const message =
+          config.env === "development" ? error.stack : "Something went wrong";
+        logger.error("%s\n%s", path, error.stack);
+        return new Response(message, { status: 500 });
       }
-    },
-    {
-      body: t.Object({
-        clientName: t.Optional(t.String()),
-        phoneNumber: t.String(),
-        webhookUrl: t.String(),
-        webhookVerifyToken: t.String(),
-      }),
-    },
+      default:
+    }
+  })
+  .use(
+    swagger({
+      documentation: {
+        info: {
+          title: "Baileys API",
+          version: "1.0.0",
+        },
+        tags: [
+          {
+            name: "Connections",
+            description: "Manage connections",
+          },
+          {
+            name: "Admin",
+            description: "Admin operations",
+          },
+        ],
+        components: {
+          securitySchemes: {
+            xApiKey: {
+              type: "apiKey",
+              in: "header",
+              name: "x-api-key",
+              description: "API key. See scripts/manage-api-keys.ts",
+            },
+          },
+        },
+      },
+    }),
   )
-  .delete(
-    "/connections/:phoneNumber",
-    async ({ params }) => {
-      const { phoneNumber } = params;
-      await baileys.logout(phoneNumber);
-    },
-    {
-      params: t.Object({
-        phoneNumber: t.String(),
-      }),
-    },
-  )
-  .group("/admin", (app) =>
-    app
-      .use(adminGuard)
-      .post("/connections/logout-all", async () => await baileys.logoutAll()),
-  )
-  .listen(3025);
+  .use(connectionsController)
+  .use(adminController)
+  .listen(config.port);
 
 logger.info(
   `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,

@@ -1,15 +1,26 @@
-# Elysia with Bun runtime
+# Baileys API
 
 ## Getting Started
-To get started with this template, simply paste this command into your terminal:
+
+### Setup environment variables
+
 ```bash
-bun create elysia ./elysia-example
+cp .env.example .env
+vim .env
+```
+
+### Setup credentials on Redis
+
+```bash
+bun manage-api-keys create
 ```
 
 ## Development
+
 To start the development server run:
+
 ```bash
-bun run dev
+bun dev
 ```
 
-Open http://localhost:3000/ with your browser to see the result.
+Open http://localhost:3025/swagger to see the API documentation.
