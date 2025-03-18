@@ -3,6 +3,7 @@ import config from "@/config";
 import logger, { baileysLogger } from "@/lib/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
+  type AuthenticationState,
   type BaileysEventMap,
   type WAPresence,
   type ConnectionState,
@@ -38,6 +39,7 @@ export class BaileysConnection {
   private webhookVerifyToken: string;
   private onConnectionClose: (() => void) | null;
   private socket: ReturnType<typeof makeWASocket> | null;
+  private clearAuthState: AuthenticationState["keys"]["clear"] | null;
 
   constructor(options: BaileysConnectionOptions) {
     this.clientName = options.clientName || "Chrome";
@@ -46,6 +48,7 @@ export class BaileysConnection {
     this.webhookVerifyToken = options.webhookVerifyToken;
     this.onConnectionClose = options.onConnectionClose || null;
     this.socket = null;
+    this.clearAuthState = null;
   }
 
   async connect() {
@@ -58,6 +61,8 @@ export class BaileysConnection {
       webhookUrl: this.webhookUrl,
       webhookVerifyToken: this.webhookVerifyToken,
     });
+    this.clearAuthState = state.keys.clear;
+
     this.socket = makeWASocket({
       auth: {
         creds: state.creds,
@@ -85,7 +90,8 @@ export class BaileysConnection {
   }
 
   private async close() {
-    await this.socket?.authState.keys.clear?.();
+    await this.clearAuthState?.();
+    this.clearAuthState = null;
     this.socket = null;
     this.onConnectionClose?.();
   }
