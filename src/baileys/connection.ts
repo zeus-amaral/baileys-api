@@ -110,6 +110,10 @@ export class BaileysConnection {
       throw new BaileysNotConnectedError();
     }
 
+    if (!this.socket.authState.creds.me) {
+      return;
+    }
+
     return this.socket.sendPresenceUpdate(type, toJid);
   }
 
