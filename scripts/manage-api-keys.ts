@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import redis from "@/lib/redis";
 
-const REDIS_KEY_PREFIX = "@baileys-api";
+const REDIS_KEY_PREFIX = "@baileys-api:api-key";
 
 async function createApiKey(role: "user" | "admin") {
   const apiKey = crypto.randomBytes(24).toString("hex");
