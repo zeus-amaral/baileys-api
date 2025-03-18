@@ -1,5 +1,8 @@
 import baileys from "@/baileys";
-import { BaileysAlreadyConnectedError } from "@/baileys/connection";
+import {
+  BaileysAlreadyConnectedError,
+  BaileysNotConnectedError,
+} from "@/baileys/connection";
 import { phoneNumberParams } from "@/controller/common";
 import { authMiddleware } from "@/middleware/auth";
 import Elysia, { t } from "elysia";
@@ -66,7 +69,14 @@ const connectionsController = new Elysia({
     "/:phoneNumber",
     async ({ params }) => {
       const { phoneNumber } = params;
-      await baileys.logout(phoneNumber);
+      try {
+        await baileys.logout(phoneNumber);
+      } catch (e) {
+        if (e instanceof BaileysNotConnectedError) {
+          return new Response("Phone number not found", { status: 404 });
+        }
+        throw e;
+      }
     },
     {
       params: phoneNumberParams,
@@ -74,6 +84,9 @@ const connectionsController = new Elysia({
         responses: {
           200: {
             description: "Disconnect initiated",
+          },
+          404: {
+            description: "Phone number not found",
           },
         },
       },
