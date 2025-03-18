@@ -6,7 +6,7 @@ export interface AuthData {
   role: "user" | "admin";
 }
 
-const REDIS_KEY_PREFIX = "@baileys-api:api-keys";
+export const REDIS_KEY_PREFIX = "@baileys-api:api-keys";
 
 function getApiKey(headers: Headers): string | null {
   return headers.get("x-api-key");
