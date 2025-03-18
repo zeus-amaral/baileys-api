@@ -84,8 +84,8 @@ export class BaileysConnection {
     );
   }
 
-  private close() {
-    this.socket?.authState.keys.clear?.();
+  private async close() {
+    await this.socket?.authState.keys.clear?.();
     this.socket = null;
     this.onConnectionClose?.();
   }
@@ -96,7 +96,7 @@ export class BaileysConnection {
     }
 
     await this.socket.logout();
-    this.close();
+    await this.close();
   }
 
   sendPresenceUpdate(type: WAPresence, toJid?: string | undefined) {
@@ -121,7 +121,7 @@ export class BaileysConnection {
         this.connect();
         return;
       }
-      this.close();
+      await this.close();
     }
 
     if (connection === "open" && this.socket?.user?.id) {
