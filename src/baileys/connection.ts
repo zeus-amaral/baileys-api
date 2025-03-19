@@ -1,6 +1,6 @@
 import { useRedisAuthState } from "@/baileys/redisAuthState";
 import config from "@/config";
-import logger, { baileysLogger, deepTrimObject } from "@/lib/logger";
+import logger, { baileysLogger, deepSanitizeObject } from "@/lib/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
   type AuthenticationState,
@@ -33,6 +33,8 @@ export class BaileysNotConnectedError extends Error {
 }
 
 export class BaileysConnection {
+  private LOGGER_OMIT_KEYS = ["qr", "qrDataUrl"];
+
   private clientName: string;
   private phoneNumber: string;
   private webhookUrl: string;
@@ -121,7 +123,7 @@ export class BaileysConnection {
     logger.debug(
       "[%s] [handleConnectionUpdate] %o",
       this.phoneNumber,
-      deepTrimObject(data),
+      deepSanitizeObject(data, { extraOmitKeys: this.LOGGER_OMIT_KEYS }),
     );
     const { connection, qr, lastDisconnect } = data;
 
@@ -193,7 +195,7 @@ export class BaileysConnection {
     logger.debug(
       "[%s] [sendToWebhook] %o",
       this.phoneNumber,
-      deepTrimObject(data),
+      deepSanitizeObject(data, { extraOmitKeys: this.LOGGER_OMIT_KEYS }),
     );
     try {
       await fetch(this.webhookUrl, {

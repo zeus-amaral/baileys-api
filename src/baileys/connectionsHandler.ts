@@ -23,7 +23,7 @@ export class BaileysConnectionsHandler {
     }
 
     logger.info(
-      "Reconnecting from auth store\n%o",
+      "Reconnecting from auth store %o",
       savedConnections.map(({ id }) => id),
     );
 

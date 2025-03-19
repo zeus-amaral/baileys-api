@@ -4,24 +4,42 @@ import config from "@/config";
 import pino from "pino";
 import type { PrettyOptions } from "pino-pretty";
 
-export function deepTrimObject(obj: Record<string, unknown>) {
-  const result: Record<string, unknown> = {};
+function omitKeys(obj: Record<string, unknown>, extraOmitKeys: string[]) {
+  const keys = ["password", "key", "token", ...extraOmitKeys];
   for (const key in obj) {
-    if (typeof obj[key] === "string") {
-      result[key] =
-        `${obj[key].slice(0, 50)}${obj[key].length > 50 ? "..." : ""}`;
-    } else if (Array.isArray(obj[key])) {
-      result[key] = obj[key].slice(0, 3).map((item) => deepTrimObject(item));
-      if (obj[key].length > 3) {
-        (result[key] as unknown[]).push("...");
+    for (const omitKey of keys) {
+      if (key.toLowerCase().includes(omitKey.toLowerCase())) {
+        obj[key] = "********";
       }
-    } else if (typeof obj[key] === "object") {
-      result[key] = deepTrimObject(obj[key] as Record<string, unknown>);
-    } else {
-      result[key] = obj[key];
     }
   }
-  return result;
+}
+
+export function deepSanitizeObject(
+  obj: Record<string, unknown>,
+  { extraOmitKeys }: { extraOmitKeys?: string[] } = {},
+) {
+  const output = structuredClone(obj);
+  omitKeys(output, extraOmitKeys ?? []);
+
+  for (const key in output) {
+    if (typeof output[key] === "string") {
+      output[key] =
+        `${output[key].slice(0, 50)}${output[key].length > 50 ? "..." : ""}`;
+    } else if (Array.isArray(output[key])) {
+      output[key] = output[key]
+        .slice(0, 3)
+        .map((item) => deepSanitizeObject(item, { extraOmitKeys }));
+      if ((output[key] as unknown[]).length > 3) {
+        (output[key] as unknown[]).push("...");
+      }
+    } else if (typeof output[key] === "object") {
+      output[key] = deepSanitizeObject(output[key] as Record<string, unknown>, {
+        extraOmitKeys,
+      });
+    }
+  }
+  return output;
 }
 
 export const baileysLogger = pino({
@@ -48,7 +66,7 @@ export const baileysLogger = pino({
 });
 
 let logger = pino({
-  level: "trace",
+  level: "debug",
   transport: {
     targets: [
       {

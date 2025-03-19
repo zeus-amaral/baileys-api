@@ -2,7 +2,7 @@ import baileys from "@/baileys";
 import config from "@/config";
 import adminController from "@/controller/admin";
 import connectionsController from "@/controller/connections";
-import logger from "@/lib/logger";
+import logger, { deepSanitizeObject } from "@/lib/logger";
 import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 
@@ -63,7 +63,11 @@ const app = new Elysia()
   .listen(config.port);
 
 logger.info(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
+  `${config.packageInfo.name}@${config.packageInfo.version} running on ${app.server?.hostname}:${app.server?.port}`,
+);
+logger.info(
+  "Loaded config %s",
+  JSON.stringify(deepSanitizeObject(config), null, 2),
 );
 
 baileys.reconnectFromAuthStore().catch((e) => {
