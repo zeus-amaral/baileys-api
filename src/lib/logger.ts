@@ -12,6 +12,9 @@ export function deepTrimObject(obj: Record<string, unknown>) {
         `${obj[key].slice(0, 50)}${obj[key].length > 50 ? "..." : ""}`;
     } else if (Array.isArray(obj[key])) {
       result[key] = obj[key].slice(0, 3).map((item) => deepTrimObject(item));
+      if (obj[key].length > 3) {
+        (result[key] as unknown[]).push("...");
+      }
     } else if (typeof obj[key] === "object") {
       result[key] = deepTrimObject(obj[key] as Record<string, unknown>);
     } else {
