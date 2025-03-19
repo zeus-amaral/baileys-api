@@ -7,6 +7,15 @@ import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 
 const app = new Elysia()
+  .onAfterResponse(({ request, response, set }) => {
+    logger.info(
+      "%s %s [%s] %o",
+      request.method,
+      request.url,
+      set.status,
+      response ?? {},
+    );
+  })
   .onError(({ path, error, code }) => {
     logger.error("%s\n%s", path, (error as Error).stack);
     switch (code) {

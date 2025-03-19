@@ -1,6 +1,6 @@
 import { useRedisAuthState } from "@/baileys/redisAuthState";
 import config from "@/config";
-import logger, { baileysLogger } from "@/lib/logger";
+import logger, { baileysLogger, deepTrimObject } from "@/lib/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
   type AuthenticationState,
@@ -118,6 +118,11 @@ export class BaileysConnection {
   }
 
   private async handleConnectionUpdate(data: Partial<ConnectionState>) {
+    logger.debug(
+      "[%s] [handleConnectionUpdate] %o",
+      this.phoneNumber,
+      deepTrimObject(data),
+    );
     const { connection, qr, lastDisconnect } = data;
 
     if (connection === "close") {
@@ -185,6 +190,11 @@ export class BaileysConnection {
   }
 
   private async sendToWebhook(data: Record<string, unknown>) {
+    logger.debug(
+      "[%s] [sendToWebhook] %o",
+      this.phoneNumber,
+      deepTrimObject(data),
+    );
     try {
       await fetch(this.webhookUrl, {
         method: "POST",
