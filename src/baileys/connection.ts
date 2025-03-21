@@ -120,11 +120,6 @@ export class BaileysConnection {
   }
 
   private async handleConnectionUpdate(data: Partial<ConnectionState>) {
-    logger.debug(
-      "[%s] [handleConnectionUpdate] %o",
-      this.phoneNumber,
-      deepSanitizeObject(data, { extraOmitKeys: this.LOGGER_OMIT_KEYS }),
-    );
     const { connection, qr, lastDisconnect } = data;
 
     if (connection === "close") {
@@ -191,11 +186,14 @@ export class BaileysConnection {
     this.logout();
   }
 
-  private async sendToWebhook(data: Record<string, unknown>) {
+  private async sendToWebhook(payload: {
+    event: keyof BaileysEventMap;
+    data: BaileysEventMap[keyof BaileysEventMap] | { error: string };
+  }) {
     logger.debug(
       "[%s] [sendToWebhook] %o",
       this.phoneNumber,
-      deepSanitizeObject(data, { extraOmitKeys: this.LOGGER_OMIT_KEYS }),
+      deepSanitizeObject(payload, { omitKeys: this.LOGGER_OMIT_KEYS }),
     );
     try {
       await fetch(this.webhookUrl, {
@@ -204,7 +202,7 @@ export class BaileysConnection {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...data,
+          ...payload,
           webhookVerifyToken: this.webhookVerifyToken,
         }),
       });

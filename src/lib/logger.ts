@@ -4,41 +4,47 @@ import config from "@/config";
 import pino from "pino";
 import type { PrettyOptions } from "pino-pretty";
 
-function omitKeys(obj: Record<string, unknown>, extraOmitKeys: string[]) {
-  const keys = ["password", "key", "token", ...extraOmitKeys];
+function omitKeys(obj: Record<string, unknown>, keys: string[]) {
   for (const key in obj) {
-    for (const omitKey of keys) {
-      if (key.toLowerCase().includes(omitKey.toLowerCase())) {
-        obj[key] = "********";
-      }
+    if (keys.includes(key)) {
+      obj[key] = "********";
     }
   }
 }
 
+function sanitizeItem(
+  item: unknown,
+  options?: DeepSanitizeObjectOptions,
+): unknown {
+  if (typeof item === "string") {
+    return `${item.slice(0, 50)}${item.length > 50 ? "..." : ""}`;
+  }
+  if (Array.isArray(item)) {
+    return item.map((i) => sanitizeItem(i, options));
+  }
+  if (typeof item === "object") {
+    return deepSanitizeObject(item as Record<string, unknown>, options);
+  }
+  return item;
+}
+
+interface DeepSanitizeObjectOptions {
+  omitKeys?: string[];
+}
+
 export function deepSanitizeObject(
   obj: Record<string, unknown>,
-  { extraOmitKeys }: { extraOmitKeys?: string[] } = {},
+  options?: DeepSanitizeObjectOptions,
 ) {
   const output = structuredClone(obj);
-  omitKeys(output, extraOmitKeys ?? []);
+  if (options?.omitKeys) {
+    omitKeys(output, options.omitKeys);
+  }
 
   for (const key in output) {
-    if (typeof output[key] === "string") {
-      output[key] =
-        `${output[key].slice(0, 50)}${output[key].length > 50 ? "..." : ""}`;
-    } else if (Array.isArray(output[key])) {
-      output[key] = output[key]
-        .slice(0, 3)
-        .map((item) => deepSanitizeObject(item, { extraOmitKeys }));
-      if ((output[key] as unknown[]).length > 3) {
-        (output[key] as unknown[]).push("...");
-      }
-    } else if (typeof output[key] === "object") {
-      output[key] = deepSanitizeObject(output[key] as Record<string, unknown>, {
-        extraOmitKeys,
-      });
-    }
+    output[key] = sanitizeItem(output[key], options);
   }
+
   return output;
 }
 

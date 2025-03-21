@@ -41,7 +41,6 @@ async function listApiKeys() {
   }
 }
 
-// Example usage (can be triggered via command line arguments)
 async function main() {
   const [command, ...args] = process.argv.slice(2);
 

@@ -67,7 +67,11 @@ logger.info(
 );
 logger.info(
   "Loaded config %s",
-  JSON.stringify(deepSanitizeObject(config), null, 2),
+  JSON.stringify(
+    deepSanitizeObject(config, { omitKeys: ["password"] }),
+    null,
+    2,
+  ),
 );
 
 baileys.reconnectFromAuthStore().catch((e) => {
