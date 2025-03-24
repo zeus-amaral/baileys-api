@@ -32,6 +32,7 @@ export class BaileysConnectionsHandler {
       const connection = new BaileysConnection({
         phoneNumber: id,
         onConnectionClose: () => delete this.connections[id],
+        isReconnect: true,
         ...metadata,
       });
       this.connections[id] = connection;

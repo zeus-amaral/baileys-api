@@ -7,6 +7,7 @@ import makeWASocket, {
   type BaileysEventMap,
   type WAPresence,
   type ConnectionState,
+  type WAConnectionState,
   Browsers,
   DisconnectReason,
   makeCacheableSignalKeyStore,
@@ -18,6 +19,7 @@ export interface BaileysConnectionOptions {
   phoneNumber: string;
   webhookUrl: string;
   webhookVerifyToken: string;
+  isReconnect?: boolean;
   onConnectionClose?: () => void;
 }
 
@@ -39,6 +41,7 @@ export class BaileysConnection {
   private phoneNumber: string;
   private webhookUrl: string;
   private webhookVerifyToken: string;
+  private isReconnect: boolean;
   private onConnectionClose: (() => void) | null;
   private socket: ReturnType<typeof makeWASocket> | null;
   private clearAuthState: AuthenticationState["keys"]["clear"] | null;
@@ -51,6 +54,7 @@ export class BaileysConnection {
     this.onConnectionClose = options.onConnectionClose || null;
     this.socket = null;
     this.clearAuthState = null;
+    this.isReconnect = !!options.isReconnect;
   }
 
   async connect() {
@@ -120,7 +124,22 @@ export class BaileysConnection {
   }
 
   private async handleConnectionUpdate(data: Partial<ConnectionState>) {
-    const { connection, qr, lastDisconnect } = data;
+    const { connection, qr, lastDisconnect, isNewLogin } = data;
+
+    // NOTE: Reconnection flow
+    // - `isNewLogin`: sent after close on first connection (see `shouldReconnect` below). We send a `reconnecting` update to indicate qr code has been read.
+    // - `connection === "connecting"` sent on:
+    //   - Server boot, so check for `this.isReconnect`
+    //   - Right after new login, specifically with `qr` code but no value present
+    const isReconnecting =
+      isNewLogin ||
+      (connection === "connecting" &&
+        (("qr" in data && !qr) || this.isReconnect));
+    if (isReconnecting) {
+      this.isReconnect = false;
+      this.handleReconnecting();
+      return;
+    }
 
     if (connection === "close") {
       // TODO: Drop @hapi/boom dependency.
@@ -129,6 +148,7 @@ export class BaileysConnection {
       const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
       if (shouldReconnect) {
+        this.handleReconnecting();
         this.socket = null;
         this.connect();
         return;
@@ -145,7 +165,10 @@ export class BaileysConnection {
     }
 
     if (qr) {
-      Object.assign(data, { qrDataUrl: await toDataURL(qr) });
+      Object.assign(data, {
+        connection: "connecting",
+        qrDataUrl: await toDataURL(qr),
+      });
     }
 
     this.sendToWebhook({
@@ -180,10 +203,17 @@ export class BaileysConnection {
   private handleWrongPhoneNumber() {
     this.sendToWebhook({
       event: "connection.update",
-      data: { error: "WRONG_PHONE_NUMBER" },
+      data: { error: "wrong_phone_number" },
     });
     this.socket?.ev.removeAllListeners("connection.update");
     this.logout();
+  }
+
+  private handleReconnecting() {
+    this.sendToWebhook({
+      event: "connection.update",
+      data: { connection: "reconnecting" as WAConnectionState },
+    });
   }
 
   private async sendToWebhook(payload: {
@@ -207,7 +237,7 @@ export class BaileysConnection {
         }),
       });
     } catch (error) {
-      logger.error("Failed to send to webhook %o", error);
+      logger.error("Failed to send to webhook:\n%s", (error as Error).stack);
     }
   }
 }
