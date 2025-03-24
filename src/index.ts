@@ -2,6 +2,7 @@ import baileys from "@/baileys";
 import config from "@/config";
 import adminController from "@/controller/admin";
 import connectionsController from "@/controller/connections";
+import statusController from "@/controller/status";
 import logger, { deepSanitizeObject } from "@/lib/logger";
 import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
@@ -9,9 +10,10 @@ import { Elysia } from "elysia";
 const app = new Elysia()
   .onAfterResponse(({ request, response, set }) => {
     logger.info(
-      "%s %s [%s] %o",
+      "%s %s body=%o [%s] %o",
       request.method,
       request.url,
+      request.body ?? {},
       set.status,
       response ?? {},
     );
@@ -37,6 +39,10 @@ const app = new Elysia()
         },
         tags: [
           {
+            name: "Status",
+            description: "Fetch server status",
+          },
+          {
             name: "Connections",
             description: "Manage connections",
           },
@@ -58,8 +64,9 @@ const app = new Elysia()
       },
     }),
   )
-  .use(connectionsController)
+  .use(statusController)
   .use(adminController)
+  .use(connectionsController)
   .listen(config.port);
 
 logger.info(
