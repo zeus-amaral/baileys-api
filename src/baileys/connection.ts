@@ -124,7 +124,7 @@ export class BaileysConnection {
   }
 
   private async handleConnectionUpdate(data: Partial<ConnectionState>) {
-    const { connection, qr, lastDisconnect, isNewLogin } = data;
+    const { connection, qr, lastDisconnect, isNewLogin, isOnline } = data;
 
     // NOTE: Reconnection flow
     // - `isNewLogin`: sent after close on first connection (see `shouldReconnect` below). We send a `reconnecting` update to indicate qr code has been read.
@@ -169,6 +169,10 @@ export class BaileysConnection {
         connection: "connecting",
         qrDataUrl: await toDataURL(qr),
       });
+    }
+
+    if (isOnline) {
+      Object.assign(data, { connection: "open" });
     }
 
     this.sendToWebhook({
