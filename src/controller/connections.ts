@@ -5,6 +5,7 @@ import {
 } from "@/baileys/connection";
 import { phoneNumberParams } from "@/controller/common";
 import { authMiddleware } from "@/middleware/auth";
+import { jidEncode } from "@whiskeysockets/baileys";
 import Elysia, { t } from "elysia";
 
 const connectionsController = new Elysia({
@@ -60,6 +61,50 @@ const connectionsController = new Elysia({
         responses: {
           200: {
             description: "Connection initiated",
+          },
+        },
+      },
+    },
+  )
+  .post(
+    "/:phoneNumber/send-message",
+    async ({ params, body }) => {
+      const { phoneNumber } = params;
+      const { type, recipient, message } = body;
+
+      if (type !== "text") {
+        return new Response("Only text messages are supported", {
+          status: 400,
+        });
+      }
+
+      const result = await baileys.sendTextMessage(phoneNumber, {
+        toJid: jidEncode(recipient, "s.whatsapp.net"),
+        conversation: message,
+      });
+
+      return { success: true, data: result };
+    },
+    {
+      params: phoneNumberParams,
+      body: t.Object({
+        type: t.String({
+          description: "Type of message to be sent",
+          examples: ["text"],
+        }),
+        recipient: t.String({
+          description: "Recipient phone number",
+          examples: ["+1234567890"],
+        }),
+        message: t.String({
+          description: "Message to be sent",
+          examples: ["Hello, this is a test message"],
+        }),
+      }),
+      detail: {
+        responses: {
+          200: {
+            description: "Message sent successfully",
           },
         },
       },

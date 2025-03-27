@@ -69,6 +69,18 @@ export class BaileysConnectionsHandler {
     return connection.sendPresenceUpdate(type, toJid);
   }
 
+  async sendTextMessage(
+    phoneNumber: string,
+    { toJid, conversation }: { toJid: string; conversation: string },
+  ) {
+    const connection = this.connections[phoneNumber];
+    if (!connection) {
+      throw new BaileysNotConnectedError();
+    }
+
+    return await connection.sendTextMessage(toJid, conversation);
+  }
+
   async logout(phoneNumber: string) {
     const connection = this.connections[phoneNumber];
     if (!connection) {
