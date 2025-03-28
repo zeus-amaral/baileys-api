@@ -111,12 +111,12 @@ export class BaileysConnection {
     await this.close();
   }
 
-  async sendMessage(remoteJid: string, conversation: string) {
+  sendMessage(remoteJid: string, conversation: string) {
     if (!this.socket) {
       throw new BaileysNotConnectedError();
     }
 
-    return await this.socket.sendMessage(remoteJid, { text: conversation });
+    return this.socket.sendMessage(remoteJid, { text: conversation });
   }
 
   sendPresenceUpdate(type: WAPresence, toJid?: string | undefined) {
