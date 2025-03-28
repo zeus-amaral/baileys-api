@@ -78,7 +78,7 @@ const connectionsController = new Elysia({
         });
       }
 
-      const result = await baileys.sendTextMessage(phoneNumber, {
+      const result = await baileys.sendMessage(phoneNumber, {
         toJid: jidEncode(recipient, "s.whatsapp.net"),
         conversation: message,
       });

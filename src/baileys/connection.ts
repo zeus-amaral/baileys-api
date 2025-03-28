@@ -111,7 +111,7 @@ export class BaileysConnection {
     await this.close();
   }
 
-  async sendTextMessage(remoteJid: string, conversation: string) {
+  async sendMessage(remoteJid: string, conversation: string) {
     if (!this.socket) {
       throw new BaileysNotConnectedError();
     }
