@@ -249,7 +249,8 @@ export class BaileysConnection {
         }),
       });
     } catch (error) {
-      logger.error("Failed to send to webhook:\n%s", (error as Error).stack);
+      const e = error as Error;
+      logger.error("Failed to send to webhook:\n%s", e.stack || e.message);
     }
   }
 }
