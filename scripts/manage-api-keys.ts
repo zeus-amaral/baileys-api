@@ -2,8 +2,8 @@ import crypto from "crypto";
 import redis from "@/lib/redis";
 import { REDIS_KEY_PREFIX } from "@/middleware/auth";
 
-async function createApiKey(role: "user" | "admin") {
-  const apiKey = crypto.randomBytes(24).toString("hex");
+async function createApiKey(role: "user" | "admin", key?: string) {
+  const apiKey = key || crypto.randomBytes(24).toString("hex");
   const authData = { role };
 
   const redisKey = `${REDIS_KEY_PREFIX}:${apiKey}`;
@@ -46,7 +46,7 @@ async function main() {
 
   switch (command) {
     case "create":
-      await createApiKey((args[0] as "user" | "admin") || "user");
+      await createApiKey((args[0] as "user" | "admin") || "user", args[1]);
       break;
     case "delete":
       if (args[0]) {
@@ -58,9 +58,11 @@ async function main() {
       break;
     default:
       console.log("Usage:");
-      console.log(`  create [role]  - Create a new API key (role: user|admin)`);
-      console.log(`  delete [key]   - Delete an existing API key`);
-      console.log(`  list           - List all existing API keys`);
+      console.log(
+        `  create [role] [key]  - Create a new API key (role: user|admin)`,
+      );
+      console.log(`  delete [key]         - Delete an existing API key`);
+      console.log(`  list                 - List all existing API keys`);
   }
 
   await redis.quit();
