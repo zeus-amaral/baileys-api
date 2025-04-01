@@ -2,18 +2,27 @@ import { authMiddleware } from "@/middleware/auth";
 import Elysia from "elysia";
 
 const statusController = new Elysia({
+  prefix: "/status",
   detail: {
     tags: ["Status"],
     security: [{ xApiKey: [] }],
   },
 })
-  // TODO: Use auth data to limit access to existing connections.
-  .use(authMiddleware)
-  .get("/status", () => ({}), {
+  .get("", () => "OK", {
     detail: {
       responses: {
         200: {
           description: "Server running",
+        },
+      },
+    },
+  })
+  .use(authMiddleware)
+  .get("/auth", () => "OK", {
+    detail: {
+      responses: {
+        200: {
+          description: "Authenticated",
         },
       },
     },
