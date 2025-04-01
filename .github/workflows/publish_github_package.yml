@@ -6,8 +6,8 @@ permissions:
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - '*'
   workflow_dispatch:
 
 env:
@@ -49,6 +49,7 @@ jobs:
           push: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
           tags: |
             ${{ env.GITHUB_REPO }}:latest,
-            ${{ env.GITHUB_REPO }}:${{ github.sha }}
+            ${{ env.GITHUB_REPO }}:${{ github.sha }},
+            ${{ env.GITHUB_REPO }}:${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
