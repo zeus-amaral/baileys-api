@@ -19,7 +19,7 @@ async function connect() {
   }
 }
 
-connect().catch((err) => {
+await connect().catch((err) => {
   logger.error("Failed to connect to Redis\n%o", err);
 });
 
