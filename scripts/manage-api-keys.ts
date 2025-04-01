@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import redis from "@/lib/redis";
+import redis, { initializeRedis } from "@/lib/redis";
 import { REDIS_KEY_PREFIX } from "@/middleware/auth";
 
 async function createApiKey(role: "user" | "admin", key?: string) {
@@ -68,4 +68,4 @@ async function main() {
   await redis.quit();
 }
 
-main().catch(console.error);
+initializeRedis().then(() => main().catch(console.error));

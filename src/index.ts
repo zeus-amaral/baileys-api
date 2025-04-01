@@ -4,6 +4,7 @@ import adminController from "@/controller/admin";
 import connectionsController from "@/controller/connections";
 import statusController from "@/controller/status";
 import logger, { deepSanitizeObject } from "@/lib/logger";
+import { initializeRedis } from "@/lib/redis";
 import swagger from "@elysiajs/swagger";
 import { Elysia } from "elysia";
 
@@ -81,6 +82,8 @@ logger.info(
   ),
 );
 
-baileys.reconnectFromAuthStore().catch((e) => {
-  logger.error("Failed to reconnect from auth store: %s", e.stack);
-});
+initializeRedis().then(() =>
+  baileys.reconnectFromAuthStore().catch((e) => {
+    logger.error("Failed to reconnect from auth store: %s", e.stack);
+  }),
+);

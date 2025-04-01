@@ -13,15 +13,13 @@ redis.on("connect", async () => {
   logger.info("Connected to Redis");
 });
 
-async function connect() {
+export async function initializeRedis() {
   if (!redis.isOpen) {
     await redis.connect();
   }
-}
 
-await connect().catch((err) => {
-  logger.error("Failed to connect to Redis\n%o", err);
-});
+  return redis;
+}
 
 // biome-ignore lint/style/noDefaultExport: <explanation>
 export default redis;
