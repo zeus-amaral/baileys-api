@@ -19,7 +19,4 @@ COPY --from=prerelease /usr/src/app/package.json package.json
 COPY --from=prerelease /usr/src/app/scripts scripts
 RUN mkdir -p /usr/src/app/logs && chown -R bun:bun /usr/src/app/logs
 
-USER bun
 EXPOSE 3025
-ENV NODE_ENV=production
-ENTRYPOINT [ "bun", "run", "src/index.ts"]
