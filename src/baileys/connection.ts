@@ -1,5 +1,6 @@
 import { useRedisAuthState } from "@/baileys/redisAuthState";
 import config from "@/config";
+import { asyncSleep } from "@/helpers/asyncSleep";
 import logger, { baileysLogger, deepSanitizeObject } from "@/lib/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
@@ -197,10 +198,15 @@ export class BaileysConnection {
   }
 
   private handleMessagesUpdate(data: BaileysEventMap["messages.update"]) {
-    this.sendToWebhook({
-      event: "messages.update",
-      data,
-    });
+    this.sendToWebhook(
+      {
+        event: "messages.update",
+        data,
+      },
+      {
+        awaitResponse: true,
+      },
+    );
   }
 
   private handleMessageReceiptUpdate(
@@ -228,17 +234,97 @@ export class BaileysConnection {
     });
   }
 
-  private async sendToWebhook(payload: {
-    event: keyof BaileysEventMap;
-    data: BaileysEventMap[keyof BaileysEventMap] | { error: string };
-  }) {
+  private async sendToWebhook(
+    payload: {
+      event: keyof BaileysEventMap;
+      data: BaileysEventMap[keyof BaileysEventMap] | { error: string };
+    },
+    options?: {
+      awaitResponse?: boolean;
+    },
+  ) {
+    const sanitizedPayload = deepSanitizeObject(payload, {
+      omitKeys: this.LOGGER_OMIT_KEYS,
+    });
+
     logger.debug(
-      "[%s] [sendToWebhook] %o",
+      "[%s] [sendToWebhook] (options: %o) payload=%o",
       this.phoneNumber,
-      deepSanitizeObject(payload, { omitKeys: this.LOGGER_OMIT_KEYS }),
+      options || {},
+      sanitizedPayload,
     );
+
+    const { maxRetries, retryInterval, backoffFactor } =
+      config.webhook.retryPolicy;
+    let attempt = 0;
+    let delay = retryInterval;
+
+    while (attempt <= maxRetries) {
+      const { response, error } = await this.sendPayloadToWebhook(
+        payload,
+        options,
+      );
+      if (response) {
+        if (response.ok) {
+          logger.debug(
+            "[%s] [sendToWebhook] [SUCCESS] payload=%o response=%o",
+            this.phoneNumber,
+            sanitizedPayload,
+            response,
+          );
+          return response;
+        }
+        logger.error(
+          "[%s] [sendToWebhook] [ERROR] payload=%o response=%o",
+          this.phoneNumber,
+          sanitizedPayload,
+          { status: response.status, statusText: response.statusText },
+        );
+      }
+
+      if (error) {
+        logger.error(
+          "[%s] [sendToWebhook] [ERROR] payload=%o error=%o",
+          this.phoneNumber,
+          sanitizedPayload,
+          error.stack || error.message,
+        );
+      }
+
+      attempt++;
+      if (attempt <= maxRetries) {
+        logger.info(
+          "[%s] [sendToWebhook] [RETRYING] payload=%o attempt=%d/%d delay=%dms",
+          this.phoneNumber,
+          sanitizedPayload,
+          attempt,
+          maxRetries,
+          delay,
+        );
+        const jitter = Math.floor(Math.random() * 1000);
+        await asyncSleep(delay + jitter);
+        delay *= backoffFactor;
+      }
+    }
+
+    logger.error(
+      "[%s] [sendToWebhook] [FAILED] payload=%o",
+      this.phoneNumber,
+      sanitizedPayload,
+    );
+  }
+
+  private async sendPayloadToWebhook(
+    payload: {
+      event: keyof BaileysEventMap;
+      data: BaileysEventMap[keyof BaileysEventMap] | { error: string };
+    },
+    options?: {
+      awaitResponse?: boolean;
+    },
+  ): Promise<{ response?: Response; error?: Error }> {
     try {
-      await fetch(this.webhookUrl, {
+      const response = await fetch(this.webhookUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -246,11 +332,12 @@ export class BaileysConnection {
         body: JSON.stringify({
           ...payload,
           webhookVerifyToken: this.webhookVerifyToken,
+          awaitResponse: options?.awaitResponse,
         }),
       });
+      return { response };
     } catch (error) {
-      const e = error as Error;
-      logger.error("Failed to send to webhook:\n%s", e.stack || e.message);
+      return { error: error as Error };
     }
   }
 }
