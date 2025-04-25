@@ -6,7 +6,7 @@ import {
 } from "@/baileys/connection";
 import { getRedisSavedAuthStateIds } from "@/baileys/redisAuthState";
 import logger from "@/lib/logger";
-import type { WAPresence } from "@whiskeysockets/baileys";
+import type { AnyMessageContent, WAPresence } from "@whiskeysockets/baileys";
 
 export class BaileysConnectionsHandler {
   private connections: Record<string, BaileysConnection> = {};
@@ -71,14 +71,20 @@ export class BaileysConnectionsHandler {
 
   sendMessage(
     phoneNumber: string,
-    { toJid, conversation }: { toJid: string; conversation: string },
+    {
+      toJid,
+      messageContent,
+    }: {
+      toJid: string;
+      messageContent: AnyMessageContent;
+    },
   ) {
     const connection = this.connections[phoneNumber];
     if (!connection) {
       throw new BaileysNotConnectedError();
     }
 
-    return connection.sendMessage(toJid, conversation);
+    return connection.sendMessage(toJid, messageContent);
   }
 
   async logout(phoneNumber: string) {

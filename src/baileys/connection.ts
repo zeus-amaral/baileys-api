@@ -1,14 +1,17 @@
+import { downloadMediaFromMessages } from "@/baileys/helpers/downloadMediaFromMessages";
 import { useRedisAuthState } from "@/baileys/redisAuthState";
 import config from "@/config";
 import { asyncSleep } from "@/helpers/asyncSleep";
 import logger, { baileysLogger, deepSanitizeObject } from "@/lib/logger";
 import type { Boom } from "@hapi/boom";
 import makeWASocket, {
+  type AnyMessageContent,
   type AuthenticationState,
   type BaileysEventMap,
-  type WAPresence,
   type ConnectionState,
+  type MiscMessageGenerationOptions,
   type WAConnectionState,
+  type WAPresence,
   Browsers,
   DisconnectReason,
   makeCacheableSignalKeyStore,
@@ -36,7 +39,21 @@ export class BaileysNotConnectedError extends Error {
 }
 
 export class BaileysConnection {
-  private LOGGER_OMIT_KEYS = ["qr", "qrDataUrl"];
+  private LOGGER_OMIT_KEYS = [
+    "qr",
+    "qrDataUrl",
+    "fileSha256",
+    "jpegThumbnail",
+    "fileEncSha256",
+    "scansSidecar",
+    "midQualityFileSha256",
+    "mediaKey",
+    "senderKeyHash",
+    "recipientKeyHash",
+    "messageSecret",
+    "thumbnailSha256",
+    "thumbnailEncSha256",
+  ];
 
   private clientName: string;
   private phoneNumber: string;
@@ -112,12 +129,16 @@ export class BaileysConnection {
     await this.close();
   }
 
-  sendMessage(remoteJid: string, conversation: string) {
+  sendMessage(
+    remoteJid: string,
+    messageContent: AnyMessageContent,
+    options?: MiscMessageGenerationOptions,
+  ) {
     if (!this.socket) {
       throw new BaileysNotConnectedError();
     }
 
-    return this.socket.sendMessage(remoteJid, { text: conversation });
+    return this.socket.sendMessage(remoteJid, messageContent, options);
   }
 
   sendPresenceUpdate(type: WAPresence, toJid?: string | undefined) {
@@ -190,10 +211,12 @@ export class BaileysConnection {
     });
   }
 
-  private handleMessagesUpsert(data: BaileysEventMap["messages.upsert"]) {
+  private async handleMessagesUpsert(data: BaileysEventMap["messages.upsert"]) {
+    const media = await downloadMediaFromMessages(data.messages);
     this.sendToWebhook({
       event: "messages.upsert",
       data,
+      extra: { media },
     });
   }
 
@@ -238,6 +261,7 @@ export class BaileysConnection {
     payload: {
       event: keyof BaileysEventMap;
       data: BaileysEventMap[keyof BaileysEventMap] | { error: string };
+      extra?: unknown;
     },
     options?: {
       awaitResponse?: boolean;
@@ -318,6 +342,7 @@ export class BaileysConnection {
     payload: {
       event: keyof BaileysEventMap;
       data: BaileysEventMap[keyof BaileysEventMap] | { error: string };
+      extra?: unknown;
     },
     options?: {
       awaitResponse?: boolean;

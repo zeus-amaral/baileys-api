@@ -3,10 +3,11 @@ import {
   BaileysAlreadyConnectedError,
   BaileysNotConnectedError,
 } from "@/baileys/connection";
-import { phoneNumberParams } from "@/controller/common";
-import { authMiddleware } from "@/middleware/auth";
+import { buildMessageContent } from "@/controllers/connections/helpers";
+import { authMiddleware } from "@/middlewares/auth";
 import { jidEncode } from "@whiskeysockets/baileys";
 import Elysia, { t } from "elysia";
+import { anyMessageContent, phoneNumberParams } from "./types";
 
 const connectionsController = new Elysia({
   prefix: "/connections",
@@ -70,36 +71,24 @@ const connectionsController = new Elysia({
     "/:phoneNumber/send-message",
     async ({ params, body }) => {
       const { phoneNumber } = params;
-      const { type, recipient, message } = body;
+      const { recipient, messageContent } = body;
 
-      if (type !== "text") {
-        return new Response("Only text messages are supported", {
-          status: 400,
-        });
-      }
-
-      const result = await baileys.sendMessage(phoneNumber, {
-        toJid: jidEncode(recipient, "s.whatsapp.net"),
-        conversation: message,
-      });
-
-      return { success: true, data: result };
+      return {
+        success: true,
+        data: await baileys.sendMessage(phoneNumber, {
+          toJid: jidEncode(recipient, "s.whatsapp.net"),
+          messageContent: buildMessageContent(messageContent),
+        }),
+      };
     },
     {
       params: phoneNumberParams,
       body: t.Object({
-        type: t.String({
-          description: "Type of message to be sent",
-          examples: ["text"],
-        }),
         recipient: t.String({
           description: "Recipient phone number",
           examples: ["+1234567890"],
         }),
-        message: t.String({
-          description: "Message to be sent",
-          examples: ["Hello, this is a test message"],
-        }),
+        messageContent: anyMessageContent,
       }),
       detail: {
         responses: {
