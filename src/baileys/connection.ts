@@ -53,6 +53,7 @@ export class BaileysConnection {
     "messageSecret",
     "thumbnailSha256",
     "thumbnailEncSha256",
+    "appStateSyncKeyShare",
   ];
 
   private clientName: string;
