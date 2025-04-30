@@ -8,6 +8,13 @@ export const phoneNumberParams = t.Object({
   }),
 });
 
+const iMessageKey = t.Object({
+  id: t.Optional(t.String()),
+  remoteJid: t.Optional(t.String()),
+  fromMe: t.Optional(t.Boolean()),
+  participant: t.Optional(t.String()),
+});
+
 export const anyMessageContent = t.Union([
   t.Object({
     text: t.String(),
@@ -31,5 +38,11 @@ export const anyMessageContent = t.Union([
     audio: t.String({ description: "Base64 encoded audio data" }),
     mimetype: t.Optional(t.String()),
     ptt: t.Optional(t.Boolean()),
+  }),
+  t.Object({
+    react: t.Object({
+      key: iMessageKey,
+      text: t.String(),
+    }),
   }),
 ]);
