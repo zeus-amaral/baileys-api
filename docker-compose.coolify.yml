@@ -12,11 +12,11 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - LOG_LEVEL=${LOG_LEVEL:-debug}
       - BAILEYS_LOG_LEVEL=${BAILEYS_LOG_LEVEL:-error}
-      - BAILEYS_PROVIDER_DEFAULT_API_KEY=${BAILEYS_PROVIDER_DEFAULT_API_KEY}
+      - BAILEYS_PROVIDER_DEFAULT_API_KEY=${SERVICE_PASSWORD_64_DEFAULTAPIKEY}
     command:
       - sh
       - "-c"
-      - "bun manage-api-keys create user ${BAILEYS_PROVIDER_DEFAULT_API_KEY} && bun start"
+      - "bun manage-api-keys create user ${SERVICE_PASSWORD_64_DEFAULTAPIKEY} && bun start"
     restart: always
     healthcheck:
       test:
