@@ -10,7 +10,7 @@ services:
       - NODE_ENV=production
       - REDIS_URL=${REDIS_URL}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - LOG_LEVEL=${LOG_LEVEL:-debug}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
       - BAILEYS_LOG_LEVEL=${BAILEYS_LOG_LEVEL:-error}
       - BAILEYS_PROVIDER_DEFAULT_API_KEY=${SERVICE_PASSWORD_64_DEFAULTAPIKEY}
     command:
