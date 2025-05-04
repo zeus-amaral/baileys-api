@@ -11,10 +11,9 @@ import { Elysia } from "elysia";
 const app = new Elysia()
   .onAfterResponse(({ request, response, set }) => {
     logger.info(
-      "%s %s body=%o [%s] %o",
+      "%s %s [%s] %o",
       request.method,
       request.url,
-      request.body ?? {},
       set.status,
       response ?? {},
     );
