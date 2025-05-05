@@ -143,7 +143,9 @@ export class BaileysConnection {
             // NOTE: Use low quality mp3 for ptt messages for more realistic quality.
             messageContent.ptt ? "mp3-low" : "mp3-high",
           ),
-          preprocessAudio(messageContent.audio, "wav"),
+          messageContent.ptt
+            ? preprocessAudio(messageContent.audio, "wav")
+            : null,
         ]);
         messageContent.mimetype = "audio/mpeg";
       }
