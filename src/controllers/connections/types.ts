@@ -32,13 +32,13 @@ export const anyMessageContent = t.Union([
   }),
   t.Object({
     document: t.String({ description: "Base64 encoded document data" }),
-    mimetype: t.String(),
     fileName: t.Optional(t.String()),
+    mimetype: t.Optional(t.String()),
   }),
   t.Object({
     audio: t.String({ description: "Base64 encoded audio data" }),
-    mimetype: t.Optional(t.String()),
     ptt: t.Optional(t.Boolean()),
+    mimetype: t.Optional(t.String()),
   }),
   t.Object({
     react: t.Object({
