@@ -2,10 +2,11 @@ import { t } from "elysia";
 
 export const phoneNumberParams = t.Object({
   phoneNumber: t.String({
-    minLength: 13,
-    maxLength: 14,
+    minLength: 6,
+    maxLength: 16,
+    pattern: "\\A\\+\\d{5,15}\\z",
     description: "Phone number for connection. Must have + prefix.",
-    examples: ["+551101234567"],
+    examples: ["+551234567890"],
   }),
 });
 
