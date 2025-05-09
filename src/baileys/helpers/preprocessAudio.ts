@@ -15,7 +15,7 @@ function bufferToStream(buffer: Buffer) {
 
 export async function preprocessAudio(
   audio: Buffer,
-  format: "mp3" | "mp3-low" | "mp3-high" | "wav",
+  format: "mp3-low" | "mp3-high" | "wav",
 ): Promise<Buffer> {
   const { promise, resolve, reject } = promisify<Buffer>();
 
