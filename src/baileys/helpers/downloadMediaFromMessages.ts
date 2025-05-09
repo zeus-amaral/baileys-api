@@ -1,3 +1,4 @@
+import { preprocessAudio } from "@/baileys/helpers/preprocessAudio";
 import logger from "@/lib/logger";
 import {
   type BaileysEventMap,
@@ -33,7 +34,13 @@ export async function downloadMediaFromMessages(
       const stream = await downloadContentFromMessage(mediaMessage, mediaType);
       const buffer = await streamToBuffer(stream);
 
-      downloadedMedia[key.id] = buffer.toString("base64");
+      if (message.audioMessage) {
+        const processedAudio = await preprocessAudio(buffer, "mp3-high");
+        message.audioMessage.mimetype = "audio/mp3";
+        downloadedMedia[key.id] = processedAudio.toString("base64");
+      } else {
+        downloadedMedia[key.id] = buffer.toString("base64");
+      }
     } catch (error) {
       logger.error("Failed to download media: %s", error);
     }
