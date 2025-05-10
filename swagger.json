@@ -304,30 +304,16 @@
                 "type": "object",
                 "properties": {
                   "type": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable",
+                      "available",
+                      "composing",
+                      "recording",
+                      "paused"
+                    ],
                     "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
-                    "example": "available",
-                    "anyOf": [
-                      {
-                        "const": "unavailable",
-                        "type": "string"
-                      },
-                      {
-                        "const": "available",
-                        "type": "string"
-                      },
-                      {
-                        "const": "composing",
-                        "type": "string"
-                      },
-                      {
-                        "const": "recording",
-                        "type": "string"
-                      },
-                      {
-                        "const": "paused",
-                        "type": "string"
-                      }
-                    ]
+                    "example": "available"
                   },
                   "toJid": {
                     "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
@@ -345,30 +331,16 @@
                 "type": "object",
                 "properties": {
                   "type": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable",
+                      "available",
+                      "composing",
+                      "recording",
+                      "paused"
+                    ],
                     "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
-                    "example": "available",
-                    "anyOf": [
-                      {
-                        "const": "unavailable",
-                        "type": "string"
-                      },
-                      {
-                        "const": "available",
-                        "type": "string"
-                      },
-                      {
-                        "const": "composing",
-                        "type": "string"
-                      },
-                      {
-                        "const": "recording",
-                        "type": "string"
-                      },
-                      {
-                        "const": "paused",
-                        "type": "string"
-                      }
-                    ]
+                    "example": "available"
                   },
                   "toJid": {
                     "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
@@ -386,30 +358,16 @@
                 "type": "object",
                 "properties": {
                   "type": {
+                    "type": "string",
+                    "enum": [
+                      "unavailable",
+                      "available",
+                      "composing",
+                      "recording",
+                      "paused"
+                    ],
                     "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
-                    "example": "available",
-                    "anyOf": [
-                      {
-                        "const": "unavailable",
-                        "type": "string"
-                      },
-                      {
-                        "const": "available",
-                        "type": "string"
-                      },
-                      {
-                        "const": "composing",
-                        "type": "string"
-                      },
-                      {
-                        "const": "recording",
-                        "type": "string"
-                      },
-                      {
-                        "const": "paused",
-                        "type": "string"
-                      }
-                    ]
+                    "example": "available"
                   },
                   "toJid": {
                     "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
