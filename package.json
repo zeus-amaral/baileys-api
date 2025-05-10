@@ -19,6 +19,7 @@
     "postinstall": "bun git-hooks"
   },
   "dependencies": {
+    "@elysiajs/cors": "^1.3.1",
     "@elysiajs/swagger": "^1.3.0",
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@hapi/boom": "^10.0.1",

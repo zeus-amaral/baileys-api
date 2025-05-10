@@ -3,6 +3,7 @@ import adminController from "@/controllers/admin";
 import connectionsController from "@/controllers/connections";
 import statusController from "@/controllers/status";
 import logger from "@/lib/logger";
+import cors from "@elysiajs/cors";
 import swagger from "@elysiajs/swagger";
 import Elysia from "elysia";
 
@@ -87,6 +88,12 @@ const app = new Elysia()
   .use(statusController)
   .use(adminController)
   .use(connectionsController);
+
+if (config.env === "development") {
+  app.use(cors());
+} else {
+  app.use(cors({ origin: config.corsOrigin }));
+}
 
 // biome-ignore lint/style/noDefaultExport: <explanation>
 export default app;

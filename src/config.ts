@@ -12,6 +12,7 @@ const {
   WEBHOOK_RETRY_POLICY_MAX_RETRIES,
   WEBHOOK_RETRY_POLICY_RETRY_INTERVAL,
   WEBHOOK_RETRY_POLICY_BACKOFF_FACTOR,
+  CORS_ORIGIN,
 } = process.env;
 
 const config = {
@@ -45,6 +46,7 @@ const config = {
         : 3,
     },
   },
+  corsOrigin: CORS_ORIGIN || "localhost",
 };
 
 // biome-ignore lint/style/noDefaultExport: <explanation>
