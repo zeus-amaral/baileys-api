@@ -4,7 +4,7 @@ export const phoneNumberParams = t.Object({
   phoneNumber: t.String({
     minLength: 6,
     maxLength: 16,
-    pattern: "\\A\\+\\d{5,15}\\z",
+    pattern: "^\\+\\d{5,15}$",
     description: "Phone number for connection. Must have + prefix.",
     example: "+551234567890",
   }),

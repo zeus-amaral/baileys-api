@@ -118,7 +118,7 @@
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z",
+              "pattern": "^\\+\\d{5,15}$",
               "example": "+551234567890"
             },
             "in": "path",
@@ -238,7 +238,7 @@
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z",
+              "pattern": "^\\+\\d{5,15}$",
               "example": "+551234567890"
             },
             "in": "path",
@@ -274,7 +274,7 @@
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z",
+              "pattern": "^\\+\\d{5,15}$",
               "example": "+551234567890"
             },
             "in": "path",
@@ -393,7 +393,7 @@
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z",
+              "pattern": "^\\+\\d{5,15}$",
               "example": "+551234567890"
             },
             "in": "path",
@@ -863,7 +863,7 @@
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z",
+              "pattern": "^\\+\\d{5,15}$",
               "example": "+551234567890"
             },
             "in": "path",
