@@ -10,6 +10,9 @@ index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2
 diff --git a/node_modules/@whiskeysockets/baileys/.bun-tag-8a7003c32aded7b0 b/.bun-tag-8a7003c32aded7b0
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
+diff --git a/node_modules/@whiskeysockets/baileys/.bun-tag-aa4cf5b7cd5bc17f b/.bun-tag-aa4cf5b7cd5bc17f
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
 diff --git a/node_modules/@whiskeysockets/baileys/.bun-tag-e6c8e597fae8e352 b/.bun-tag-e6c8e597fae8e352
 new file mode 100644
 index 0000000000000000000000000000000000000000..e69de29bb2d1d6434b8b29ae775ad8c2e48c5391
@@ -41,9 +44,18 @@ index e9d112cb1f7f68f50333abddd3adb63eb7d8dc77..4c35eb5448d32c6a555ee9aacd0d69aa
      };
      /** await the next incoming message */
 diff --git a/lib/Types/Message.d.ts b/lib/Types/Message.d.ts
-index b5e9016e8921bf75f1922b6941d4c3e7983278fa..1985798cefa4e7c8466b73050dbb0112d1e36cde 100644
+index b5e9016e8921bf75f1922b6941d4c3e7983278fa..0037c3306322797cd911819505e3f4ab4b468405 100644
 --- a/lib/Types/Message.d.ts
 +++ b/lib/Types/Message.d.ts
+@@ -111,7 +111,7 @@ export type AnyMediaMessageContent = (({
+     isAnimated?: boolean;
+ } & WithDimensions) | ({
+     document: WAMediaUpload;
+-    mimetype: string;
++    mimetype?: string;
+     fileName?: string;
+     caption?: string;
+ } & Contextable)) & {
 @@ -215,6 +215,7 @@ export type MiscMessageGenerationOptions = MinimalRelayOptions & {
      font?: number;
      /** if it is broadcast */
