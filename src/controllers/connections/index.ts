@@ -32,18 +32,18 @@ const connectionsController = new Elysia({
         clientName: t.Optional(
           t.String({
             description: "Name of the client to be used on WhatsApp connection",
-            examples: ["My WhatsApp Client"],
+            example: "My WhatsApp Client",
           }),
         ),
         webhookUrl: t.String({
           format: "uri",
           description: "URL for receiving updates",
-          examples: ["http://localhost:3026/whatsapp/+1234567890"],
+          example: "http://localhost:3026/whatsapp/+1234567890",
         }),
         webhookVerifyToken: t.String({
           minLength: 6,
           description: "Token for verifying webhook",
-          examples: ["a3f4b2"],
+          example: "a3f4b2",
         }),
       }),
       detail: {
@@ -83,20 +83,14 @@ const connectionsController = new Elysia({
           {
             description:
               "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
-            examples: [
-              "unavailable",
-              "available",
-              "composing",
-              "recording",
-              "paused",
-            ],
+            example: "available",
           },
         ),
         toJid: t.Optional(
           t.String({
             description:
               "Recipient jid. Required for `composing`, `recording`, and `paused`.",
-            examples: ["551101234567@s.whatsapp.net"],
+            example: "551101234567@s.whatsapp.net",
           }),
         ),
       }),
@@ -128,7 +122,7 @@ const connectionsController = new Elysia({
       body: t.Object({
         jid: t.String({
           description: "Recipient jid",
-          examples: ["551101234567@s.whatsapp.net"],
+          example: "551101234567@s.whatsapp.net",
         }),
         messageContent: anyMessageContent,
       }),

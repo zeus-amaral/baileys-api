@@ -36,6 +36,27 @@ const app = new Elysia()
           version: config.packageInfo.version,
           description: config.packageInfo.description,
         },
+        servers: [
+          {
+            url: `http://localhost:${config.port}`,
+            description: "Local development server",
+          },
+          {
+            url: "{scheme}://{customUrl}",
+            description: "Custom server",
+            variables: {
+              scheme: {
+                enum: ["http", "https"],
+                default: "https",
+                description: "HTTP or HTTPS",
+              },
+              customUrl: {
+                default: "your-domain.com",
+                description: "Your API domain (without protocol)",
+              },
+            },
+          },
+        ],
         tags: [
           {
             name: "Status",

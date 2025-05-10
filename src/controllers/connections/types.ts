@@ -6,7 +6,7 @@ export const phoneNumberParams = t.Object({
     maxLength: 16,
     pattern: "\\A\\+\\d{5,15}\\z",
     description: "Phone number for connection. Must have + prefix.",
-    examples: ["+551234567890"],
+    example: "+551234567890",
   }),
 });
 
@@ -19,7 +19,7 @@ export const iMessageKey = t.Object({
 
 export const anyMessageContent = t.Union([
   t.Object({
-    text: t.String({ description: "Text message", examples: ["Hello world!"] }),
+    text: t.String({ description: "Text message", example: "Hello world!" }),
   }),
   t.Object({
     image: t.String({ description: "Base64 encoded image data" }),
@@ -46,7 +46,7 @@ export const anyMessageContent = t.Union([
       key: iMessageKey,
       text: t.String({
         description: "Emoji to react with",
-        examples: ["👍", "❤️"],
+        example: "👍",
       }),
     }),
   }),

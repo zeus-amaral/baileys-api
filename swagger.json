@@ -5,6 +5,30 @@
     "description": "Baileys API for WhatsApp",
     "version": "1.0.0"
   },
+  "servers": [
+    {
+      "url": "http://localhost:3025",
+      "description": "Local development server"
+    },
+    {
+      "url": "{scheme}://{customUrl}",
+      "description": "Custom server",
+      "variables": {
+        "scheme": {
+          "enum": [
+            "http",
+            "https"
+          ],
+          "default": "https",
+          "description": "HTTP or HTTPS"
+        },
+        "customUrl": {
+          "default": "your-domain.com",
+          "description": "Your API domain (without protocol)"
+        }
+      }
+    }
+  ],
   "tags": [
     {
       "name": "Status",
@@ -90,14 +114,12 @@
         "parameters": [
           {
             "description": "Phone number for connection. Must have + prefix.",
-            "examples": [
-              "+551234567890"
-            ],
             "schema": {
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z"
+              "pattern": "\\A\\+\\d{5,15}\\z",
+              "example": "+551234567890"
             },
             "in": "path",
             "name": "phoneNumber",
@@ -127,25 +149,19 @@
                 "properties": {
                   "clientName": {
                     "description": "Name of the client to be used on WhatsApp connection",
-                    "examples": [
-                      "My WhatsApp Client"
-                    ],
+                    "example": "My WhatsApp Client",
                     "type": "string"
                   },
                   "webhookUrl": {
                     "format": "uri",
                     "description": "URL for receiving updates",
-                    "examples": [
-                      "http://localhost:3026/whatsapp/+1234567890"
-                    ],
+                    "example": "http://localhost:3026/whatsapp/+1234567890",
                     "type": "string"
                   },
                   "webhookVerifyToken": {
                     "minLength": 6,
                     "description": "Token for verifying webhook",
-                    "examples": [
-                      "a3f4b2"
-                    ],
+                    "example": "a3f4b2",
                     "type": "string"
                   }
                 },
@@ -161,25 +177,19 @@
                 "properties": {
                   "clientName": {
                     "description": "Name of the client to be used on WhatsApp connection",
-                    "examples": [
-                      "My WhatsApp Client"
-                    ],
+                    "example": "My WhatsApp Client",
                     "type": "string"
                   },
                   "webhookUrl": {
                     "format": "uri",
                     "description": "URL for receiving updates",
-                    "examples": [
-                      "http://localhost:3026/whatsapp/+1234567890"
-                    ],
+                    "example": "http://localhost:3026/whatsapp/+1234567890",
                     "type": "string"
                   },
                   "webhookVerifyToken": {
                     "minLength": 6,
                     "description": "Token for verifying webhook",
-                    "examples": [
-                      "a3f4b2"
-                    ],
+                    "example": "a3f4b2",
                     "type": "string"
                   }
                 },
@@ -195,25 +205,19 @@
                 "properties": {
                   "clientName": {
                     "description": "Name of the client to be used on WhatsApp connection",
-                    "examples": [
-                      "My WhatsApp Client"
-                    ],
+                    "example": "My WhatsApp Client",
                     "type": "string"
                   },
                   "webhookUrl": {
                     "format": "uri",
                     "description": "URL for receiving updates",
-                    "examples": [
-                      "http://localhost:3026/whatsapp/+1234567890"
-                    ],
+                    "example": "http://localhost:3026/whatsapp/+1234567890",
                     "type": "string"
                   },
                   "webhookVerifyToken": {
                     "minLength": 6,
                     "description": "Token for verifying webhook",
-                    "examples": [
-                      "a3f4b2"
-                    ],
+                    "example": "a3f4b2",
                     "type": "string"
                   }
                 },
@@ -230,14 +234,12 @@
         "parameters": [
           {
             "description": "Phone number for connection. Must have + prefix.",
-            "examples": [
-              "+551234567890"
-            ],
             "schema": {
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z"
+              "pattern": "\\A\\+\\d{5,15}\\z",
+              "example": "+551234567890"
             },
             "in": "path",
             "name": "phoneNumber",
@@ -268,14 +270,12 @@
         "parameters": [
           {
             "description": "Phone number for connection. Must have + prefix.",
-            "examples": [
-              "+551234567890"
-            ],
             "schema": {
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z"
+              "pattern": "\\A\\+\\d{5,15}\\z",
+              "example": "+551234567890"
             },
             "in": "path",
             "name": "phoneNumber",
@@ -305,13 +305,7 @@
                 "properties": {
                   "type": {
                     "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
-                    "examples": [
-                      "unavailable",
-                      "available",
-                      "composing",
-                      "recording",
-                      "paused"
-                    ],
+                    "example": "available",
                     "anyOf": [
                       {
                         "const": "unavailable",
@@ -337,9 +331,7 @@
                   },
                   "toJid": {
                     "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
-                    "examples": [
-                      "551101234567@s.whatsapp.net"
-                    ],
+                    "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   }
                 },
@@ -354,13 +346,7 @@
                 "properties": {
                   "type": {
                     "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
-                    "examples": [
-                      "unavailable",
-                      "available",
-                      "composing",
-                      "recording",
-                      "paused"
-                    ],
+                    "example": "available",
                     "anyOf": [
                       {
                         "const": "unavailable",
@@ -386,9 +372,7 @@
                   },
                   "toJid": {
                     "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
-                    "examples": [
-                      "551101234567@s.whatsapp.net"
-                    ],
+                    "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   }
                 },
@@ -403,13 +387,7 @@
                 "properties": {
                   "type": {
                     "description": "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
-                    "examples": [
-                      "unavailable",
-                      "available",
-                      "composing",
-                      "recording",
-                      "paused"
-                    ],
+                    "example": "available",
                     "anyOf": [
                       {
                         "const": "unavailable",
@@ -435,9 +413,7 @@
                   },
                   "toJid": {
                     "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
-                    "examples": [
-                      "551101234567@s.whatsapp.net"
-                    ],
+                    "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   }
                 },
@@ -455,14 +431,12 @@
         "parameters": [
           {
             "description": "Phone number for connection. Must have + prefix.",
-            "examples": [
-              "+551234567890"
-            ],
             "schema": {
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z"
+              "pattern": "\\A\\+\\d{5,15}\\z",
+              "example": "+551234567890"
             },
             "in": "path",
             "name": "phoneNumber",
@@ -492,9 +466,7 @@
                 "properties": {
                   "jid": {
                     "description": "Recipient jid",
-                    "examples": [
-                      "551101234567@s.whatsapp.net"
-                    ],
+                    "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   },
                   "messageContent": {
@@ -504,9 +476,7 @@
                         "properties": {
                           "text": {
                             "description": "Text message",
-                            "examples": [
-                              "Hello world!"
-                            ],
+                            "example": "Hello world!",
                             "type": "string"
                           }
                         },
@@ -611,10 +581,7 @@
                               },
                               "text": {
                                 "description": "Emoji to react with",
-                                "examples": [
-                                  "👍",
-                                  "❤️"
-                                ],
+                                "example": "👍",
                                 "type": "string"
                               }
                             },
@@ -643,9 +610,7 @@
                 "properties": {
                   "jid": {
                     "description": "Recipient jid",
-                    "examples": [
-                      "551101234567@s.whatsapp.net"
-                    ],
+                    "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   },
                   "messageContent": {
@@ -655,9 +620,7 @@
                         "properties": {
                           "text": {
                             "description": "Text message",
-                            "examples": [
-                              "Hello world!"
-                            ],
+                            "example": "Hello world!",
                             "type": "string"
                           }
                         },
@@ -762,10 +725,7 @@
                               },
                               "text": {
                                 "description": "Emoji to react with",
-                                "examples": [
-                                  "👍",
-                                  "❤️"
-                                ],
+                                "example": "👍",
                                 "type": "string"
                               }
                             },
@@ -794,9 +754,7 @@
                 "properties": {
                   "jid": {
                     "description": "Recipient jid",
-                    "examples": [
-                      "551101234567@s.whatsapp.net"
-                    ],
+                    "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   },
                   "messageContent": {
@@ -806,9 +764,7 @@
                         "properties": {
                           "text": {
                             "description": "Text message",
-                            "examples": [
-                              "Hello world!"
-                            ],
+                            "example": "Hello world!",
                             "type": "string"
                           }
                         },
@@ -913,10 +869,7 @@
                               },
                               "text": {
                                 "description": "Emoji to react with",
-                                "examples": [
-                                  "👍",
-                                  "❤️"
-                                ],
+                                "example": "👍",
                                 "type": "string"
                               }
                             },
@@ -948,14 +901,12 @@
         "parameters": [
           {
             "description": "Phone number for connection. Must have + prefix.",
-            "examples": [
-              "+551234567890"
-            ],
             "schema": {
               "type": "string",
               "minLength": 6,
               "maxLength": 16,
-              "pattern": "\\A\\+\\d{5,15}\\z"
+              "pattern": "\\A\\+\\d{5,15}\\z",
+              "example": "+551234567890"
             },
             "in": "path",
             "name": "phoneNumber",
