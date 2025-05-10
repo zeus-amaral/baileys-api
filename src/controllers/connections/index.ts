@@ -72,21 +72,20 @@ const connectionsController = new Elysia({
     {
       params: phoneNumberParams,
       body: t.Object({
-        type: t.Unsafe<
-          "unavailable" | "available" | "composing" | "recording" | "paused"
-        >({
-          type: "string",
-          enum: [
-            "unavailable",
-            "available",
-            "composing",
-            "recording",
-            "paused",
+        type: t.Union(
+          [
+            t.Literal("unavailable"),
+            t.Literal("available"),
+            t.Literal("composing"),
+            t.Literal("recording"),
+            t.Literal("paused"),
           ],
-          description:
-            "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
-          example: "available",
-        }),
+          {
+            description:
+              "Presence type. `available` is automatically reset to `unavailable` after 60s. `composing` and `recording` are automatically held for ~25s by WhatsApp. `paused` can be used to reset `composing` and `recording` early.",
+            example: "available",
+          },
+        ),
         toJid: t.Optional(
           t.String({
             description:

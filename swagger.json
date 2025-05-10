@@ -323,7 +323,8 @@
                 },
                 "required": [
                   "type"
-                ]
+                ],
+                "additionalProperties": false
               }
             },
             "multipart/form-data": {
@@ -350,7 +351,8 @@
                 },
                 "required": [
                   "type"
-                ]
+                ],
+                "additionalProperties": false
               }
             },
             "text/plain": {
@@ -377,7 +379,8 @@
                 },
                 "required": [
                   "type"
-                ]
+                ],
+                "additionalProperties": false
               }
             }
           }

@@ -10,6 +10,52 @@ async function getGitIndexContent(filePath: string): Promise<string | null> {
   return null;
 }
 
+function patchAnyOf(swaggerJson: Record<string, any>) {
+  // NOTE: `anyOf` is generated incorrectly in the swagger.json file for `t.Enum` types.
+  // The "correct" approach would be to use `t.Unsafe` for the body definition instead of applying this patch, but that won't work with ElysiaJS.
+  // That is due to schema definition in ElysiaJS wrapping the options object in `t.Object` internally, which is not compatible with `t.Unsafe`.
+  const traverse = (node: any) => {
+    if (node && typeof node === "object") {
+      if (node.properties && typeof node.properties === "object") {
+        for (const [propName, propSchema] of Object.entries(
+          node.properties as Record<string, any>,
+        )) {
+          if (
+            propSchema.anyOf &&
+            Array.isArray(propSchema.anyOf) &&
+            propSchema.anyOf[0]?.type === "string"
+          ) {
+            const enumValues = propSchema.anyOf
+              .filter((item: any) => item.const !== undefined)
+              .map((item: any) => item.const);
+
+            const newSchema: any = {
+              type: "string",
+              enum: enumValues,
+            };
+            if (propSchema.description) {
+              newSchema.description = propSchema.description;
+            }
+            if (propSchema.example) {
+              newSchema.example = propSchema.example;
+            }
+
+            node.properties[propName] = newSchema;
+          } else {
+            traverse(propSchema);
+          }
+        }
+      } else {
+        for (const child of Object.values(node)) {
+          traverse(child);
+        }
+      }
+    }
+  };
+
+  traverse(swaggerJson);
+}
+
 async function checkOrUpdateSwagger(): Promise<number> {
   const swaggerFilePath = "./swagger.json";
 
@@ -23,6 +69,8 @@ async function checkOrUpdateSwagger(): Promise<number> {
     }
 
     const newSwaggerJsonObject = await res.json();
+    patchAnyOf(newSwaggerJsonObject);
+
     const expectedSwaggerContent = JSON.stringify(
       newSwaggerJsonObject,
       null,
