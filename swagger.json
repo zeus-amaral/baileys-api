@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "@fazer-ai/baileys-api",
-    "description": "Baileys API for WhatsApp",
+    "description": "Baileys API for WhatsApp. [See on GitHub](https://github.com/fazer-ai/baileys-api.git)",
     "version": "1.0.0"
   },
   "servers": [

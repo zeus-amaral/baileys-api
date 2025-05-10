@@ -1,7 +1,7 @@
 {
   "name": "@fazer-ai/baileys-api",
   "version": "1.0.0",
-  "description": "Baileys API for WhatsApp",
+  "description": "Baileys API for WhatsApp.",
   "author": "gabrieljablonski",
   "repository": {
     "type": "git",

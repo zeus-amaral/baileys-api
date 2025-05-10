@@ -35,7 +35,7 @@ const app = new Elysia()
         info: {
           title: config.packageInfo.name,
           version: config.packageInfo.version,
-          description: config.packageInfo.description,
+          description: `${config.packageInfo.description} [See on GitHub](${config.packageInfo.repository.url})`,
         },
         servers: [
           {
