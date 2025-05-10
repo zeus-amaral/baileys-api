@@ -15,7 +15,12 @@ const {
 } = process.env;
 
 const config = {
-  packageInfo: { name: packageInfo.name, version: packageInfo.version },
+  packageInfo: {
+    name: packageInfo.name,
+    version: packageInfo.version,
+    description: packageInfo.description,
+    repository: packageInfo.repository,
+  },
   port: PORT ? Number(PORT) : 3025,
   env: (NODE_ENV || "development") as "development" | "production",
   logLevel: (LOG_LEVEL || "info") as LevelWithSilentOrString,
