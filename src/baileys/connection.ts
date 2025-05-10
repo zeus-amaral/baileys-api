@@ -1,4 +1,5 @@
 import { downloadMediaFromMessages } from "@/baileys/helpers/downloadMediaFromMessages";
+import { normalizeBrazilPhoneNumber } from "@/baileys/helpers/normalizedPhoneNumber";
 import { preprocessAudio } from "@/baileys/helpers/preprocessAudio";
 import { useRedisAuthState } from "@/baileys/redisAuthState";
 import config from "@/config";
@@ -232,7 +233,7 @@ export class BaileysConnection {
 
     if (connection === "open" && this.socket?.user?.id) {
       const phoneNumberFromId = `+${this.socket.user.id.split("@")[0].split(":")[0]}`;
-      if (phoneNumberFromId !== this.phoneNumber) {
+      if (phoneNumberFromId !== normalizeBrazilPhoneNumber(this.phoneNumber)) {
         this.handleWrongPhoneNumber();
         return;
       }
