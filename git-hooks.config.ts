@@ -4,7 +4,7 @@ const config: GitHooksConfig = {
   "pre-commit": {
     "staged-lint": {
       "**/*.ts": [
-        "bun lint --staged --no-errors-on-unmatched",
+        "bun lint --staged --no-errors-on-unmatched --error-on-warnings",
         "bun build-swagger",
       ],
     },
