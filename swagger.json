@@ -276,7 +276,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Disconnect initiated"
+            "description": "Disconnected"
           },
           "404": {
             "description": "Phone number not found"
@@ -335,7 +335,7 @@
                     "example": "available"
                   },
                   "toJid": {
-                    "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
+                    "description": "Recipient whatsapp jid [Required for `composing`, `recording`, and `paused`]",
                     "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   }
@@ -362,7 +362,7 @@
                     "example": "available"
                   },
                   "toJid": {
-                    "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
+                    "description": "Recipient whatsapp jid [Required for `composing`, `recording`, and `paused`]",
                     "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   }
@@ -389,7 +389,7 @@
                     "example": "available"
                   },
                   "toJid": {
-                    "description": "Recipient jid. Required for `composing`, `recording`, and `paused`.",
+                    "description": "Recipient whatsapp jid [Required for `composing`, `recording`, and `paused`]",
                     "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   }
@@ -431,7 +431,51 @@
         ],
         "responses": {
           "200": {
-            "description": "Message sent successfully"
+            "description": "Message sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "key": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string"
+                            },
+                            "remoteJid": {
+                              "type": "string"
+                            },
+                            "fromMe": {
+                              "type": "boolean"
+                            },
+                            "participant": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "messageTimestamp": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "key",
+                        "messageTimestamp"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Message not sent"
           }
         },
         "requestBody": {
@@ -442,13 +486,14 @@
                 "type": "object",
                 "properties": {
                   "jid": {
-                    "description": "Recipient jid",
+                    "description": "Recipient whatsapp jid",
                     "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   },
                   "messageContent": {
                     "anyOf": [
                       {
+                        "title": "Text message",
                         "type": "object",
                         "properties": {
                           "text": {
@@ -462,6 +507,7 @@
                         ]
                       },
                       {
+                        "title": "Image message",
                         "type": "object",
                         "properties": {
                           "image": {
@@ -480,6 +526,7 @@
                         ]
                       },
                       {
+                        "title": "Video message",
                         "type": "object",
                         "properties": {
                           "video": {
@@ -498,6 +545,7 @@
                         ]
                       },
                       {
+                        "title": "Document message",
                         "type": "object",
                         "properties": {
                           "document": {
@@ -516,6 +564,7 @@
                         ]
                       },
                       {
+                        "title": "Audio message",
                         "type": "object",
                         "properties": {
                           "audio": {
@@ -534,6 +583,7 @@
                         ]
                       },
                       {
+                        "title": "Reaction message",
                         "type": "object",
                         "properties": {
                           "react": {
@@ -586,13 +636,14 @@
                 "type": "object",
                 "properties": {
                   "jid": {
-                    "description": "Recipient jid",
+                    "description": "Recipient whatsapp jid",
                     "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   },
                   "messageContent": {
                     "anyOf": [
                       {
+                        "title": "Text message",
                         "type": "object",
                         "properties": {
                           "text": {
@@ -606,6 +657,7 @@
                         ]
                       },
                       {
+                        "title": "Image message",
                         "type": "object",
                         "properties": {
                           "image": {
@@ -624,6 +676,7 @@
                         ]
                       },
                       {
+                        "title": "Video message",
                         "type": "object",
                         "properties": {
                           "video": {
@@ -642,6 +695,7 @@
                         ]
                       },
                       {
+                        "title": "Document message",
                         "type": "object",
                         "properties": {
                           "document": {
@@ -660,6 +714,7 @@
                         ]
                       },
                       {
+                        "title": "Audio message",
                         "type": "object",
                         "properties": {
                           "audio": {
@@ -678,6 +733,7 @@
                         ]
                       },
                       {
+                        "title": "Reaction message",
                         "type": "object",
                         "properties": {
                           "react": {
@@ -730,13 +786,14 @@
                 "type": "object",
                 "properties": {
                   "jid": {
-                    "description": "Recipient jid",
+                    "description": "Recipient whatsapp jid",
                     "example": "551101234567@s.whatsapp.net",
                     "type": "string"
                   },
                   "messageContent": {
                     "anyOf": [
                       {
+                        "title": "Text message",
                         "type": "object",
                         "properties": {
                           "text": {
@@ -750,6 +807,7 @@
                         ]
                       },
                       {
+                        "title": "Image message",
                         "type": "object",
                         "properties": {
                           "image": {
@@ -768,6 +826,7 @@
                         ]
                       },
                       {
+                        "title": "Video message",
                         "type": "object",
                         "properties": {
                           "video": {
@@ -786,6 +845,7 @@
                         ]
                       },
                       {
+                        "title": "Document message",
                         "type": "object",
                         "properties": {
                           "document": {
@@ -804,6 +864,7 @@
                         ]
                       },
                       {
+                        "title": "Audio message",
                         "type": "object",
                         "properties": {
                           "audio": {
@@ -822,6 +883,7 @@
                         ]
                       },
                       {
+                        "title": "Reaction message",
                         "type": "object",
                         "properties": {
                           "react": {
@@ -1001,6 +1063,228 @@
         }
       }
     },
+    "/connections/{phoneNumber}/chat-modify": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Phone number for connection. Must have + prefix.",
+            "schema": {
+              "type": "string",
+              "minLength": 6,
+              "maxLength": 16,
+              "pattern": "^\\+\\d{5,15}$",
+              "example": "+551234567890"
+            },
+            "in": "path",
+            "name": "phoneNumber",
+            "required": true
+          }
+        ],
+        "operationId": "postConnectionsByPhoneNumberChat-modify",
+        "tags": [
+          "Connections"
+        ],
+        "security": [
+          {
+            "xApiKey": []
+          }
+        ],
+        "description": "Currently only supports marking chats as read/unread with `markRead` + `lastMessages`.",
+        "responses": {
+          "200": {
+            "description": "Chat modification was successfully applied"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mod": {
+                    "title": "Mark read/unread",
+                    "type": "object",
+                    "properties": {
+                      "markRead": {
+                        "type": "boolean"
+                      },
+                      "lastMessages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "remoteJid": {
+                                  "type": "string"
+                                },
+                                "fromMe": {
+                                  "type": "boolean"
+                                },
+                                "participant": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "messageTimestamp": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "messageTimestamp"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "markRead",
+                      "lastMessages"
+                    ]
+                  },
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mod",
+                  "jid"
+                ]
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mod": {
+                    "title": "Mark read/unread",
+                    "type": "object",
+                    "properties": {
+                      "markRead": {
+                        "type": "boolean"
+                      },
+                      "lastMessages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "remoteJid": {
+                                  "type": "string"
+                                },
+                                "fromMe": {
+                                  "type": "boolean"
+                                },
+                                "participant": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "messageTimestamp": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "messageTimestamp"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "markRead",
+                      "lastMessages"
+                    ]
+                  },
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mod",
+                  "jid"
+                ]
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mod": {
+                    "title": "Mark read/unread",
+                    "type": "object",
+                    "properties": {
+                      "markRead": {
+                        "type": "boolean"
+                      },
+                      "lastMessages": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "key": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "remoteJid": {
+                                  "type": "string"
+                                },
+                                "fromMe": {
+                                  "type": "boolean"
+                                },
+                                "participant": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "messageTimestamp": {
+                              "type": "number"
+                            }
+                          },
+                          "required": [
+                            "key",
+                            "messageTimestamp"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "markRead",
+                      "lastMessages"
+                    ]
+                  },
+                  "jid": {
+                    "description": "Recipient whatsapp jid",
+                    "example": "551101234567@s.whatsapp.net",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "mod",
+                  "jid"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
     "/media/{messageId}": {
       "get": {
         "parameters": [
@@ -1019,6 +1303,7 @@
         "tags": [
           "Media"
         ],
+        "description": "Media file download",
         "security": [
           {
             "xApiKey": []

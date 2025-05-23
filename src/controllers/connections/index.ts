@@ -3,7 +3,13 @@ import { BaileysNotConnectedError } from "@/baileys/connection";
 import { buildMessageContent } from "@/controllers/connections/helpers";
 import { authMiddleware } from "@/middlewares/auth";
 import Elysia, { t } from "elysia";
-import { anyMessageContent, iMessageKey, phoneNumberParams } from "./types";
+import {
+  anyMessageContent,
+  chatModification,
+  iMessageKey,
+  jid,
+  phoneNumberParams,
+} from "./types";
 
 const connectionsController = new Elysia({
   prefix: "/connections",
@@ -18,14 +24,8 @@ const connectionsController = new Elysia({
     "/:phoneNumber",
     async ({ params, body }) => {
       const { phoneNumber } = params;
-      const { clientName, webhookUrl, webhookVerifyToken, includeMedia } = body;
-      await baileys.connect({
-        clientName,
-        phoneNumber,
-        webhookUrl,
-        webhookVerifyToken,
-        includeMedia,
-      });
+
+      await baileys.connect(phoneNumber, body);
     },
     {
       params: phoneNumberParams,
@@ -68,26 +68,19 @@ const connectionsController = new Elysia({
     "/:phoneNumber/presence",
     async ({ params, body }) => {
       const { phoneNumber } = params;
-      const { type, toJid } = body;
 
-      return {
-        success: true,
-        data: await baileys.sendPresenceUpdate(phoneNumber, {
-          type,
-          toJid,
-        }),
-      };
+      await baileys.sendPresenceUpdate(phoneNumber, body);
     },
     {
       params: phoneNumberParams,
       body: t.Object({
         type: t.Union(
           [
-            t.Literal("unavailable"),
-            t.Literal("available"),
-            t.Literal("composing"),
-            t.Literal("recording"),
-            t.Literal("paused"),
+            t.Literal("unavailable", { title: "unavailable" }),
+            t.Literal("available", { title: "available" }),
+            t.Literal("composing", { title: "composing" }),
+            t.Literal("recording", { title: "recording" }),
+            t.Literal("paused", { title: "paused" }),
           ],
           {
             description:
@@ -96,11 +89,7 @@ const connectionsController = new Elysia({
           },
         ),
         toJid: t.Optional(
-          t.String({
-            description:
-              "Recipient jid. Required for `composing`, `recording`, and `paused`.",
-            example: "551101234567@s.whatsapp.net",
-          }),
+          jid("Required for `composing`, `recording`, and `paused`"),
         ),
       }),
       detail: {
@@ -118,27 +107,45 @@ const connectionsController = new Elysia({
       const { phoneNumber } = params;
       const { jid, messageContent } = body;
 
+      const response = await baileys.sendMessage(phoneNumber, {
+        jid,
+        messageContent: buildMessageContent(messageContent),
+      });
+
+      if (!response) {
+        return new Response("Message not sent", { status: 500 });
+      }
+
       return {
-        success: true,
-        data: await baileys.sendMessage(phoneNumber, {
-          jid,
-          messageContent: buildMessageContent(messageContent),
-        }),
+        data: {
+          key: response.key,
+          messageTimestamp: response.messageTimestamp,
+        },
       };
     },
     {
       params: phoneNumberParams,
       body: t.Object({
-        jid: t.String({
-          description: "Recipient jid",
-          example: "551101234567@s.whatsapp.net",
-        }),
+        jid: jid(),
         messageContent: anyMessageContent,
       }),
       detail: {
         responses: {
           200: {
             description: "Message sent successfully",
+            content: {
+              "application/json": {
+                schema: t.Object({
+                  data: t.Object({
+                    key: iMessageKey,
+                    messageTimestamp: t.String(),
+                  }),
+                }),
+              },
+            },
+          },
+          500: {
+            description: "Message not sent",
           },
         },
       },
@@ -150,10 +157,7 @@ const connectionsController = new Elysia({
       const { phoneNumber } = params;
       const { keys } = body;
 
-      return {
-        success: true,
-        data: await baileys.readMessages(phoneNumber, keys),
-      };
+      await baileys.readMessages(phoneNumber, keys);
     },
     {
       params: phoneNumberParams,
@@ -169,10 +173,36 @@ const connectionsController = new Elysia({
       },
     },
   )
+  .post(
+    "/:phoneNumber/chat-modify",
+    async ({ params, body }) => {
+      const { phoneNumber } = params;
+      const { mod, jid } = body;
+
+      await baileys.chatModify(phoneNumber, mod, jid);
+    },
+    {
+      params: phoneNumberParams,
+      body: t.Object({
+        mod: chatModification,
+        jid: jid(),
+      }),
+      detail: {
+        description:
+          "Currently only supports marking chats as read/unread with `markRead` + `lastMessages`.",
+        responses: {
+          200: {
+            description: "Chat modification was successfully applied",
+          },
+        },
+      },
+    },
+  )
   .delete(
     "/:phoneNumber",
     async ({ params }) => {
       const { phoneNumber } = params;
+
       try {
         await baileys.logout(phoneNumber);
       } catch (e) {
@@ -187,7 +217,7 @@ const connectionsController = new Elysia({
       detail: {
         responses: {
           200: {
-            description: "Disconnect initiated",
+            description: "Disconnected",
           },
           404: {
             description: "Phone number not found",

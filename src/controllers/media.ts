@@ -7,6 +7,7 @@ const mediaController = new Elysia({
   prefix: "/media",
   detail: {
     tags: ["Media"],
+    description: "Media file download",
     security: [{ xApiKey: [] }],
   },
 })

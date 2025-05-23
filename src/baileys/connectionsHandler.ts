@@ -7,6 +7,7 @@ import type { BaileysConnectionOptions } from "@/baileys/types";
 import logger from "@/lib/logger";
 import type {
   AnyMessageContent,
+  ChatModification,
   WAPresence,
   proto,
 } from "@whiskeysockets/baileys";
@@ -32,8 +33,7 @@ export class BaileysConnectionsHandler {
 
     // TODO: Handle thundering herd issue.
     for (const { id, metadata } of savedConnections) {
-      const connection = new BaileysConnection({
-        phoneNumber: id,
+      const connection = new BaileysConnection(id, {
         onConnectionClose: () => delete this.connections[id],
         isReconnect: true,
         ...metadata,
@@ -43,15 +43,14 @@ export class BaileysConnectionsHandler {
     }
   }
 
-  async connect(options: BaileysConnectionOptions) {
-    const { phoneNumber } = options;
+  async connect(phoneNumber: string, options: BaileysConnectionOptions) {
     if (this.connections[phoneNumber]) {
       // NOTE: This triggers a `connection.update` event.
       await this.connections[phoneNumber].sendPresenceUpdate("available");
       return;
     }
 
-    const connection = new BaileysConnection({
+    const connection = new BaileysConnection(phoneNumber, {
       ...options,
       onConnectionClose: () => {
         delete this.connections[phoneNumber];
@@ -92,6 +91,10 @@ export class BaileysConnectionsHandler {
 
   readMessages(phoneNumber: string, keys: proto.IMessageKey[]) {
     return this.getConnection(phoneNumber).readMessages(keys);
+  }
+
+  chatModify(phoneNumber: string, mod: ChatModification, jid: string) {
+    return this.getConnection(phoneNumber).chatModify(mod, jid);
   }
 
   async logout(phoneNumber: string) {
