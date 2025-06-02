@@ -68,11 +68,17 @@ function extractMediaMessage(message: proto.IMessage): {
     ["videoMessage", "video"],
     ["audioMessage", "audio"],
     ["documentMessage", "document"],
+    ["documentWithCaptionMessage", "document"],
   ];
 
   for (const [field, type] of mediaMapping) {
     if (message[field]) {
-      return { mediaMessage: message[field] as MediaMessage, mediaType: type };
+      return {
+        mediaMessage: (field === "documentWithCaptionMessage"
+          ? message[field]?.message?.documentMessage
+          : message[field]) as MediaMessage,
+        mediaType: type,
+      };
     }
   }
 
