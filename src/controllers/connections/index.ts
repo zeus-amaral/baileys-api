@@ -229,6 +229,28 @@ const connectionsController = new Elysia({
       },
     },
   )
+  .post(
+    "/:phoneNumber/send-receipts",
+    async ({ params, body }) => {
+      const { phoneNumber } = params;
+      await baileys.sendReceipts(phoneNumber, body);
+    },
+    {
+      params: phoneNumberParams,
+      body: t.Object({
+        keys: t.Array(iMessageKey),
+      }),
+      detail: {
+        description:
+          "Sends read receipts for the provided message keys. Currently only supports sending `received` event. For `read` receipts, use `read-messages` endpoint.",
+        responses: {
+          200: {
+            description: "Receipts sent successfully",
+          },
+        },
+      },
+    },
+  )
   .delete(
     "/:phoneNumber",
     async ({ params }) => {
